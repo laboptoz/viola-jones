@@ -1,0 +1,72 @@
+<CARACT>
+	<FOLDER> D:\projet\AI\viola&jones\file\ <\FOLDER>
+	<FILE> caract_true.txt <\FILE>
+	<FILE> caract_false.txt <\FILE>
+	<FILE> tmp.txt <\FILE>
+<\CARACT>
+<IMG>
+	<TRUE>
+		<FOLDER> D:\projet\AI\viola&jones\file\true\ <\FOLDER>
+		<FILE> 000.bmp <\FILE>
+		<FILE> 001.bmp <\FILE>
+		<FILE> 002.bmp <\FILE>
+		<FILE> 003.bmp <\FILE>
+		<FILE> 004.bmp <\FILE>
+		<FILE> 005.bmp <\FILE>
+		<FILE> 006.bmp <\FILE>
+		<FILE> 007.bmp <\FILE>
+		<FILE> 008.bmp <\FILE>
+		<FILE> 009.bmp <\FILE>
+		<FILE> 010.bmp <\FILE>
+		<FILE> 011.bmp <\FILE>
+		<FILE> 012.bmp <\FILE>
+		<FILE> 013.bmp <\FILE>
+		<FILE> 014.bmp <\FILE>
+		<FILE> 015.bmp <\FILE>
+		<FILE> 016.bmp <\FILE>
+		<FILE> 017.bmp <\FILE>
+		<FILE> 018.bmp <\FILE>
+		<FILE> 019.bmp <\FILE>
+		<FILE> 020.bmp <\FILE>
+		<FILE> 021.bmp <\FILE>
+		<FILE> 022.bmp <\FILE>
+		<FILE> 023.bmp <\FILE>
+		<FILE> 024.bmp <\FILE>
+		<FILE> 025.bmp <\FILE>
+		<FILE> 026.bmp <\FILE>
+		<FILE> 027.bmp <\FILE>
+		<FILE> 028.bmp <\FILE>
+		<FILE> 029.bmp <\FILE>
+		<FILE> 030.bmp <\FILE>
+		<FILE> 031.bmp <\FILE>
+		<FILE> 032.bmp <\FILE>
+		<FILE> 033.bmp <\FILE>
+		<FILE> 034.bmp <\FILE>
+		<FILE> 035.bmp <\FILE>
+		<FILE> 036.bmp <\FILE>
+		<FILE> 037.bmp <\FILE>
+		<FILE> 038.bmp <\FILE>
+		<FILE> 039.bmp <\FILE>
+		<FILE> 040.bmp <\FILE>
+		<FILE> 041.bmp <\FILE>
+		<FILE> 042.bmp <\FILE>
+		<FILE> 043.bmp <\FILE>
+	<\TRUE>
+	<FALSE>
+		<FOLDER> D:\projet\AI\viola&jones\file\false\ <\FOLDER>
+		<FILE> 000.bmp <\FILE>
+		<FILE> 001.bmp <\FILE>
+		<FILE> 002.bmp <\FILE>
+		<FILE> 003.bmp <\FILE>
+		<FILE> 004.bmp <\FILE>
+		<FILE> 005.bmp <\FILE>
+		<FILE> 006.bmp <\FILE>
+		<FILE> 007.bmp <\FILE>
+		<FILE> 008.bmp <\FILE>
+		<FILE> 009.bmp <\FILE>
+		<FILE> 010.bmp <\FILE>
+		<FILE> 011.bmp <\FILE>
+		<FILE> 012.bmp <\FILE>
+	<\FALSE>
+<\IMG>
+		
