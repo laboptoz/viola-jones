@@ -45,3 +45,34 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# =========================
+# Personnal Files
+# =========================
+.bmp
+.o
+.project
+.layout
+.depend
+.cbp
+.settings
+
+# Executables
+*.exe
+*.out
+*.app
+Release/src
+Debug/src
+
+# Eclipse setting files
+*.settings/
+.settings/language.settings.xml
+.settings/org.eclipse.cdt.core.prefs
+*.prefs
+.*
+!/.gitignore
+
+# CDT-specific
+.cproject
+
+.settings/org.eclipse.cdt.core.prefs
