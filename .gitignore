@@ -49,13 +49,13 @@ Temporary Items
 # =========================
 # Personnal Files
 # =========================
-.bmp
-.o
-.project
-.layout
-.depend
-.cbp
-.settings
+*.bmp
+*.o
+*.project
+*.layout
+*.depend
+*.cbp
+file
 
 # Executables
 *.exe
