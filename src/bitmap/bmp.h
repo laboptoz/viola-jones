@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "../config.h"
+#include "../V_J/caract.h"
 
 struct bmp_t
 {
@@ -28,7 +29,7 @@ struct bmp_t
   std::vector< std::vector<unsigned long int> > image;
 };
 
-class bmp
+class bmp : public Caracteristics
 {
 public:
   bmp();
@@ -37,7 +38,7 @@ public:
   bmp_t read_bmp(char* file_name);
   void write_bmp(char* file_name);
   void compute_integral_image(std::vector<std::vector<unsigned long int> > &image);
-  float get_sum(std::vector<std::vector<unsigned long int> > &image, int x1, int y1, int length1, int hieght1, int wieght1, int x2, int y2, int length2, int hieght2, int wieght2);
+  float get_sum(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract);
 
   bmp_t input_bmp;
   bmp_t output_bmp;

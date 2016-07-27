@@ -91,7 +91,7 @@ int main ()
 
   training.generate_caracteristic_file();
 
-  //find_best();
+  find_best();
 
     /*char file_in[] = "D:/projet/AI/viola&jones/file/true/007.bmp"; //chemin à changer
     char file_out[] = "D:/projet/AI/viola&jones/file/true/out.bmp"; //chemin à changer

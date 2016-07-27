@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "../config.h"
+#include "caract.h"
 
 enum last_file_used_t
 {
@@ -18,7 +19,7 @@ enum caracteristic_type_t
     false_caract
 };
 
-class Training
+class Training : public Caracteristics
 {
 public :
     Training(char* p_folder_file);

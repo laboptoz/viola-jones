@@ -1,6 +1,5 @@
 #include "training.h"
 #include "../bitmap/bmp.h"
-#include "caract.h"
 
 #include <cmath>
 #include <string.h>
@@ -47,11 +46,11 @@ void Training::generate_caracteristic_file()
     generate_caracteristics(m_true_file);
     traine_true_image();
 
-    /*printf("\ngenerate %s\n", m_false_file);
+    printf("\ngenerate %s \n", m_false_file);
     generate_caracteristics_from_file(m_false_file, m_true_file);
     traine_false_image();
 
-    simplify_true_caract();*/
+    simplify_true_caract();
 }
 
 void Training::traine_true_image()
@@ -129,7 +128,7 @@ void Training::traine_false_image()
         if(strcmp(file_image,end_of_true_tag))
         {
             fscanf(m_folder_file,"%s",file_image);
-            printf("%s processing\n",file_image);
+            printf("%s processing : ",file_image);
             strcpy(tmp,folder);
             set_image_caract(strcat(tmp,file_image), false_caract);
         }
@@ -177,6 +176,7 @@ void Training::set_image_caract(char* file_name, caracteristic_type_t caracteris
 
     FILE * file_input = fopen(file_in, "r");
     FILE * file_output = fopen(file_out, "w");
+    caract_t caracteristics;
 
     if(file_input != NULL)
     {
@@ -185,21 +185,19 @@ void Training::set_image_caract(char* file_name, caracteristic_type_t caracteris
         {
             fseek(file_output, 0, 0);
 
-            int x,y,length1, hieght1, wieght1,length2,hieght2,wieght2;
             int count_image;
             float variance, sum, scare_sum;
 
             do
             {
-                i = fscanf(file_input, "<rect> %d %d %d %d %d <\\rect> <rect> %d %d %d %d %d <\\rect> <data> %d %f %f %f <\\data> ", &x, &y, &length1, &hieght1, &wieght1, &x, &y, &length2, &hieght2, &wieght2,
-                                &count_image, &sum, &scare_sum, &variance);
+                get_rects(file_input, caracteristics);
+                i = fscanf(file_input, "%d %f %f %f <\\data> ", &count_image, &sum, &scare_sum, &variance);
 
-                if(i == 14)
+                if(i == 4)
                 {
                     count_image ++;
 
-                    float result = BMP.get_sum(bmps.image, x, y , length1, hieght1, wieght1, x
-                                           , y, length2, hieght2, wieght2);
+                    float result = BMP.get_sum(bmps.image, caracteristics);
                     sum += result;
                     scare_sum = (scare_sum*(count_image - 1) + result*result)/count_image;
                     float mean = sum / (float)count_image;
@@ -207,13 +205,13 @@ void Training::set_image_caract(char* file_name, caracteristic_type_t caracteris
                     variance = variance >= 0 ? sqrt(variance) : 1.0f;
                     if((count_image <= MIN_IMAGE) || ((variance < VARIANCE_THREHOLD) && (variance != VARIANCE_ERROR)))
                     {
-                        fprintf(file_output, "<rect> %d %d %d %d %d <\\rect> <rect> %d %d %d %d %d <\\rect> <data> %d %f %f %f <\\data> \n", x, y, length1, hieght1, wieght1, x, y, length2, hieght2, wieght2,
-                                count_image, sum, scare_sum, variance);
+                        set_rects(file_output, caracteristics);
+                        fprintf(file_output, "<data> %d %f %f %f <\\data> \n", count_image, sum, scare_sum, variance);
                         nb_caract++;
                     }
                 }
             }
-            while(i == 14);
+            while(i == 4);
             printf(" %d caracteristics found\n", nb_caract);
             fprintf(file_output, "nb avaible caract = %d", nb_caract);
 

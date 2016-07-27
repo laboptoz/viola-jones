@@ -84,14 +84,22 @@ void bmp::compute_integral_image(std::vector<std::vector<unsigned long int> > &i
     }
 }
 
-float bmp::get_sum(std::vector<std::vector<unsigned long int> > &image, int x1, int y1, int length1, int hieght1, int wieght1, int x2, int y2, int length2, int hieght2, int wieght2)
+float bmp::get_sum(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract)
 {
     int mini = std::min(image.size(), image[0].size());
     float factor = mini / INIT_SIZE;
-    unsigned long int result1 = image[x1*factor][y1*factor] - image[(x1+length1)*factor][y1*factor] - image[x1*factor][(y1+hieght1)*factor] + image[(x1+length1)*factor][(y1+hieght1)*factor];
-    unsigned long int result2 = image[x2*factor][y2*factor] - image[(x2+length2)*factor][y2*factor] - image[x2*factor][(y2+hieght2)*factor] + image[(x2+length2)*factor][(y2+hieght2)*factor];
-    float result = (float)((long int)result1*wieght1 + (long int)result2*wieght2) ;/*/ (length1 * hieght1)*/;
-    float mean = result / (length1 * hieght1*factor*factor);
+    std::vector<long int> results;
+    results.resize(p_caract.nb_rect);
+    float result = 0.f;
+    for(unsigned int i = 0; i < p_caract.nb_rect; i++)
+    {
+        results[i] = image[p_caract.caract[i].x*factor][p_caract.caract[i].y*factor]
+                    - image[(p_caract.caract[i].x + p_caract.caract[i].length)*factor][p_caract.caract[i].y*factor]
+                    - image[p_caract.caract[i].x*factor][(p_caract.caract[i].y + p_caract.caract[i].height)*factor]
+                    + image[(p_caract.caract[i].x + p_caract.caract[i].length)*factor][(p_caract.caract[i].y + p_caract.caract[i].height)*factor];
+        result += results[i]*p_caract.caract[i].wieght;
+    }
+    float mean = result / ((float)p_caract.caract[0].length*(float)p_caract.caract[0].height*factor*factor);
     return(mean);
 }
 
