@@ -51,6 +51,35 @@
 		<FILE> 041.bmp <\FILE>
 		<FILE> 042.bmp <\FILE>
 		<FILE> 043.bmp <\FILE>
+		<FILE> 044.bmp <\FILE>
+		<FILE> 045.bmp <\FILE>
+		<FILE> 046.bmp <\FILE>
+		<FILE> 047.bmp <\FILE>
+		<FILE> 048.bmp <\FILE>
+		<FILE> 049.bmp <\FILE>
+		<FILE> 050.bmp <\FILE>
+		<FILE> 051.bmp <\FILE>
+		<FILE> 052.bmp <\FILE>
+		<FILE> 053.bmp <\FILE>
+		<FILE> 054.bmp <\FILE>
+		<FILE> 055.bmp <\FILE>
+		<FILE> 056.bmp <\FILE>
+		<FILE> 057.bmp <\FILE>
+		<FILE> 058.bmp <\FILE>
+		<FILE> 059.bmp <\FILE>
+		<FILE> 060.bmp <\FILE>
+		<FILE> 061.bmp <\FILE>
+		<FILE> 062.bmp <\FILE>
+		<FILE> 063.bmp <\FILE>
+		<FILE> 064.bmp <\FILE>
+		<FILE> 065.bmp <\FILE>
+		<FILE> 066.bmp <\FILE>
+		<FILE> 067.bmp <\FILE>
+		<FILE> 068.bmp <\FILE>
+		<FILE> 069.bmp <\FILE>
+		<FILE> 070.bmp <\FILE>
+		<FILE> 071.bmp <\FILE>
+		<FILE> 072.bmp <\FILE>
 	<\TRUE>
 	<FALSE>
 		<FOLDER> D:\projet\AI\viola&jones\file\false\ <\FOLDER>
@@ -67,6 +96,37 @@
 		<FILE> 010.bmp <\FILE>
 		<FILE> 011.bmp <\FILE>
 		<FILE> 012.bmp <\FILE>
+		<FILE> 013.bmp <\FILE>
+		<FILE> 014.bmp <\FILE>
+		<FILE> 015.bmp <\FILE>
+		<FILE> 016.bmp <\FILE>
+		<FILE> 017.bmp <\FILE>
+		<FILE> 018.bmp <\FILE>
+		<FILE> 019.bmp <\FILE>
+		<FILE> 020.bmp <\FILE>
+		<FILE> 021.bmp <\FILE>
+		<FILE> 022.bmp <\FILE>
+		<FILE> 023.bmp <\FILE>
+		<FILE> 024.bmp <\FILE>
+		<FILE> 025.bmp <\FILE>
+		<FILE> 026.bmp <\FILE>
+		<FILE> 027.bmp <\FILE>
+		<FILE> 028.bmp <\FILE>
+		<FILE> 029.bmp <\FILE>
+		<FILE> 030.bmp <\FILE>
+		<FILE> 031.bmp <\FILE>
+		<FILE> 032.bmp <\FILE>
+		<FILE> 033.bmp <\FILE>
+		<FILE> 034.bmp <\FILE>
+		<FILE> 035.bmp <\FILE>
+		<FILE> 036.bmp <\FILE>
+		<FILE> 037.bmp <\FILE>
+		<FILE> 038.bmp <\FILE>
+		<FILE> 039.bmp <\FILE>
+		<FILE> 040.bmp <\FILE>
+		<FILE> 041.bmp <\FILE>
+		<FILE> 041.bmp <\FILE>
+		<FILE> 043.bmp <\FILE>
 	<\FALSE>
 <\IMG>
 		
