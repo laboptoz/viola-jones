@@ -8,7 +8,7 @@
 #include "bitmap/bmp.h"
 #include "V_J/V_and_J.h"
 #include "V_J/training.h"
-//#include "time/timer_t.hpp"
+#include "V_J/caract.h"
 
 void aff_vect(std::vector< std::vector<unsigned long int> > &vect )
 {
@@ -21,24 +21,23 @@ void aff_vect(std::vector< std::vector<unsigned long int> > &vect )
   }
 }
 
-void out(std::vector<std::vector<unsigned long int> > &image, float x, float y, float l, float w)
+void out(std::vector<std::vector<unsigned long int> > &image, int x, int y, int l, int w)
 {
     int mini = std::min(image.size(), image[0].size());
     float factor = mini / INIT_SIZE;
-    //0 0 6 12//5 5 4 12//5 5 14 14//5 6 4 11//5 7 4 9
-    //5 7 11 1//7 3 12//7 6 4 10//7 9 7 6//7 10 10 9//7 15 3 4//8 3 2 16//8 3 6 8
-    //9 6 4 13//11 13 7 2//17 4 2 2//17 2 2 5//16 12 2 6//16 10 2 4//16 1 3 14//12 2 4 14
 
-    //11 14 2 5
     x = x*factor;
     y = y*factor;
     l = l*factor;
     w = w*factor;
-    for (unsigned int i = 0; i < image.size(); i++)
+
+    int j,i;
+
+    for (i = x; i < x+l; i++)
     {
-        for (unsigned int j = 0; j < image[0].size(); j++)
+        for (j = y; j < y+w; j++)
         {
-            if((i > x) && (i < (x+l)) && (j > y) && (j < (y+w)))
+            if( (i == x) || (i == x+l-1) || (j == y) || (j == y+w-1) )
                 image[i][j] = 0;
         }
     }
@@ -47,11 +46,13 @@ void out(std::vector<std::vector<unsigned long int> > &image, float x, float y, 
 
 void find_best()
 {
-    char file_cara[] = "D:/projet/AI/viola&jones/file/caract_true.txt";
+    char file_cara[] = "D:/projet/AI/viola&jones/file/tmp.txt";
     unsigned long int i;
 
     char file_in[] = "D:/projet/AI/viola&jones/file/true/004.bmp"; //chemin à changer
     char file_out[] = "D:/projet/AI/viola&jones/file/true/out.bmp"; //chemin à changer
+    Caracteristics caracteristic;
+    caract_t caracteristics;
     bmp BMP;
     bmp_t bmps = BMP.read_bmp(file_in);
 
@@ -59,21 +60,21 @@ void find_best()
     FILE * file_input = fopen(file_cara, "r");
     if(file_input != NULL)
     {
-            fseek(file_input, 0, 0);
+            unsigned int test = caracteristic.get_nb_caracteristics(file_input);
 
-            int x,y,length1, hieght1, wieght1,length2,hieght2,wieght2;
-            int count_image;
-            float variance, sum, scare_sum;
-
-            do
+            if(test != 0)
             {
-                i = fscanf(file_input, "<rect> %d %d %d %d %d <\\rect> <rect> %d %d %d %d %d <\\rect> <data> %d %f %f %f <\\data> ", &x, &y, &length1, &hieght1, &wieght1, &x, &y, &length2, &hieght2, &wieght2,
-                                &count_image, &sum, &scare_sum, &variance);
+                fseek(file_input, 0, 0);
 
-                out(BMP.input_bmp.image,x,y,length1,hieght1);
-
+                do
+                {
+                    i = caracteristic.get_rects(file_input, caracteristics);
+                    out(BMP.input_bmp.image,caracteristics.caract[0].x,caracteristics.caract[0].y,caracteristics.caract[0].length,caracteristics.caract[0].height);
+                }
+                while(i == 0);
             }
-            while(i == 14);
+            else
+                printf("\nNo caracteristic found to generate output\n");
 
         BMP.write_bmp(file_out);
         fclose(file_input);
@@ -93,21 +94,5 @@ int main ()
 
   find_best();
 
-    /*char file_in[] = "D:/projet/AI/viola&jones/file/true/007.bmp"; //chemin à changer
-    char file_out[] = "D:/projet/AI/viola&jones/file/true/out.bmp"; //chemin à changer
-    bmp BMP;
-    bmp_t bmps = BMP.read_bmp(file_in);
-    /*out(BMP.input_bmp.image, 13, 5, 3, 12);
-    out(BMP.input_bmp.image, 14, 7, 4, 9);
-    out(BMP.input_bmp.image, 5, 3, 5, 4);
-    out(BMP.input_bmp.image, 5, 9, 4, 2);
-    out(BMP.input_bmp.image, 5, 11, 11, 4);*/
-
-    /*out(BMP.input_bmp.image, 9, 4, 2, 11);
-    out(BMP.input_bmp.image, 9, 9, 2, 10);
-    //out(BMP.input_bmp.image, 15, 10, 2, 2);
-    //out(BMP.input_bmp.image, 3, 7, 2, 7);
-    //out(BMP.input_bmp.image, 8, 12, 2, 4);
-    BMP.write_bmp(file_out);*/
   return 0;
 }

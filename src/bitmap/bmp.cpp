@@ -87,16 +87,24 @@ void bmp::compute_integral_image(std::vector<std::vector<unsigned long int> > &i
 float bmp::get_sum(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract)
 {
     int mini = std::min(image.size(), image[0].size());
-    float factor = mini / INIT_SIZE;
+    float factor = (float)mini / INIT_SIZE;
     std::vector<long int> results;
     results.resize(p_caract.nb_rect);
     float result = 0.f;
-    for(unsigned int i = 0; i < p_caract.nb_rect; i++)
+
+    int x_min;
+    int y_min;
+    int x_max;
+    int y_max;
+    for(int i = p_caract.nb_rect - 1; i >= 0; i--)
     {
-        results[i] = image[p_caract.caract[i].x*factor][p_caract.caract[i].y*factor]
-                    - image[(p_caract.caract[i].x + p_caract.caract[i].length)*factor][p_caract.caract[i].y*factor]
-                    - image[p_caract.caract[i].x*factor][(p_caract.caract[i].y + p_caract.caract[i].height)*factor]
-                    + image[(p_caract.caract[i].x + p_caract.caract[i].length)*factor][(p_caract.caract[i].y + p_caract.caract[i].height)*factor];
+        x_min = p_caract.caract[i].x*factor;
+        y_min = p_caract.caract[i].y*factor;
+        x_max = (p_caract.caract[i].x + p_caract.caract[i].length)*factor;
+        y_max = (p_caract.caract[i].y + p_caract.caract[i].height)*factor;
+
+        results[i] = image[x_min][y_min] - image[x_max][y_min];
+        results[i] += -image[x_min][y_max] + image[x_max][y_max];
         result += results[i]*p_caract.caract[i].wieght;
     }
     float mean = result / ((float)p_caract.caract[0].length*(float)p_caract.caract[0].height*factor*factor);
@@ -207,8 +215,9 @@ void bmp::generate_bmp_header(FILE* file)
 
 void bmp::generate_image(FILE* file)
 {
-    int bytes_per_line = (output_bmp.width / (8/output_bmp.nb_bit_per_pixel*4)) *4;
-    if(output_bmp.width % (4*8/output_bmp.nb_bit_per_pixel) != 0)
+    int nb_byte_per_pixel = 8/output_bmp.nb_bit_per_pixel;
+    int bytes_per_line = (output_bmp.width / (nb_byte_per_pixel*4)) *4;
+    if(output_bmp.width % (4*nb_byte_per_pixel) != 0)
         bytes_per_line += 4;
 
     char data;
@@ -219,10 +228,10 @@ void bmp::generate_image(FILE* file)
         for(bytes = 0; bytes < bytes_per_line; bytes++)
         {
             data = 0x00;
-            for(pixel = 8/output_bmp.nb_bit_per_pixel - 1; pixel >= 0 ; pixel--)
+            for(pixel = nb_byte_per_pixel - 1; pixel >= 0 ; pixel--)
             {
-                if(8/output_bmp.nb_bit_per_pixel*bytes + pixel < output_bmp.width)
-                    data = data | ((output_bmp.image[output_bmp.height - line - 1][8/output_bmp.nb_bit_per_pixel*bytes + pixel] * (output_bmp.palette_size/4) / 255) << (((8/input_bmp.nb_bit_per_pixel - pixel - 1))*input_bmp.nb_bit_per_pixel));
+                if(nb_byte_per_pixel*bytes + pixel < (int)output_bmp.width)
+                    data = data | ((output_bmp.image[output_bmp.height - line - 1][nb_byte_per_pixel*bytes + pixel] * (output_bmp.palette_size/4) / 255) << (((8/input_bmp.nb_bit_per_pixel - pixel - 1))*input_bmp.nb_bit_per_pixel));
                 else
                     data = data & ~(output_bmp.mask << ((8/input_bmp.nb_bit_per_pixel - pixel - 1))*input_bmp.nb_bit_per_pixel);
             }
@@ -234,8 +243,9 @@ void bmp::generate_image(FILE* file)
 void bmp::get_image(FILE* file)
 {
   std::vector<std::vector<unsigned long int> > image(input_bmp.height, std::vector<unsigned long int>(input_bmp.width));
-  int bytes_per_line = (input_bmp.width / (8/input_bmp.nb_bit_per_pixel*4)) *4;
-  if(input_bmp.width % (4*8/input_bmp.nb_bit_per_pixel) != 0)
+  int nb_bytes_per_pixel = 8/input_bmp.nb_bit_per_pixel;
+  int bytes_per_line = (input_bmp.width / (nb_bytes_per_pixel*4)) *4;
+  if(input_bmp.width % (4*nb_bytes_per_pixel) != 0)
     bytes_per_line += 4;
 
   char data;
@@ -246,10 +256,10 @@ void bmp::get_image(FILE* file)
     for(bytes = 0; bytes < bytes_per_line; bytes++)
     {
       fread (&data, sizeof(char), 1, file);
-      for(pixel = 8/input_bmp.nb_bit_per_pixel - 1; pixel >= 0 ; pixel--)
+      for(pixel = nb_bytes_per_pixel - 1; pixel >= 0 ; pixel--)
       {
-        if(8/input_bmp.nb_bit_per_pixel*bytes + pixel < input_bmp.width)
-              image[input_bmp.height - line - 1][8/input_bmp.nb_bit_per_pixel*bytes + pixel] = (unsigned char)input_bmp.palette[(unsigned char)((data >> ((8/input_bmp.nb_bit_per_pixel - pixel - 1)*input_bmp.nb_bit_per_pixel))) & input_bmp.mask];
+        if(nb_bytes_per_pixel*bytes + pixel < (int)input_bmp.width)
+              image[input_bmp.height - line - 1][nb_bytes_per_pixel*bytes + pixel] = (unsigned char)input_bmp.palette[(data >> ((nb_bytes_per_pixel - pixel - 1)*input_bmp.nb_bit_per_pixel)) & input_bmp.mask];
       }
     }
   }
@@ -297,10 +307,7 @@ void bmp::generate_image_real_color(FILE* file)
         {
             data = 0x00;
             if(8*bytes/input_bmp.nb_bit_per_pixel < input_bmp.width)
-            {
                 data = input_bmp.image[output_bmp.height - line - 1][8*bytes/output_bmp.nb_bit_per_pixel];
-                //std::cout << std::hex << output_bmp.height - line - 1 << " : " << 8*bytes/output_bmp.nb_bit_per_pixel << std::endl;
-            }
             else
                 data = 0;
             fwrite (&data, sizeof(char), 1, file);
