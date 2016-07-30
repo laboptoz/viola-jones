@@ -11,6 +11,7 @@
 
 #define SAME_POSITION 0.f
 #define HALF_POSITION 2.f
+#define QUARTER_POSITION 4.f
 
 #define FIRST_RECT_WIEGHT -1
 
@@ -54,6 +55,8 @@ public :
 
     int get_rects(FILE* file, caract_t &caract);
     void set_rects(FILE* file, caract_t caract);
+    bool compare_caracts(caract_t caract1, caract_t caract2);
+    unsigned int get_nb_caracteristics(FILE* file);
     void define_all_caract_type();
 };
 
