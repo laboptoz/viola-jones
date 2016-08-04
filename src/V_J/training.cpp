@@ -50,12 +50,12 @@ void Training::generate_caracteristic_file()
     generate_caracteristics(m_true_file);
     traine_true_image();
 
-    printf("\ngenerate %s \n", m_false_file);
+    /*printf("\ngenerate %s \n", m_false_file);
     generate_caracteristics_from_file(m_false_file, m_true_file);
     traine_false_image();
 
     printf("\nsimplify caract in %s \n", m_tmp_file);
-    simplify_true_caract();
+    simplify_true_caract();*/
 }
 
 void Training::traine_true_image()
@@ -191,6 +191,7 @@ void Training::set_image_caract(char* file_name, caracteristic_type_t caracteris
     caract_t caracteristics;
     float result;
     float mean;
+    int ID;
 
     if(file_input != NULL)
     {
@@ -204,6 +205,7 @@ void Training::set_image_caract(char* file_name, caracteristic_type_t caracteris
 
             do
             {
+                ID = get_id(file_input);
                 i = get_rects(file_input, caracteristics);
 
                 if(i == 0)
@@ -211,7 +213,10 @@ void Training::set_image_caract(char* file_name, caracteristic_type_t caracteris
                     fscanf(file_input, "%d %f %f %f <\\data> ", &count_image, &sum, &scare_sum, &variance);
                     count_image ++;
 
-                    result = BMP.get_sum(integral_image_0d, caracteristics);
+                    if(ID < 10)
+                        result = BMP.get_sum(integral_image_0d, caracteristics);
+                    else
+                        result = BMP.get_sum(integral_image_45d, caracteristics);
 
                     sum += result;
                     scare_sum = (scare_sum*(count_image - 1) + result*result)/count_image;
@@ -221,6 +226,7 @@ void Training::set_image_caract(char* file_name, caracteristic_type_t caracteris
 
                     if(((count_image <= MIN_IMAGE_TRUE) && (caracteristic_type == true_caract)) || ((count_image <= MIN_IMAGE_FALSE) && (caracteristic_type == false_caract)) || (((variance < VARIANCE_THREHOLD) && (variance > VARIANCE_ERROR)) && ((int)variance != 0)))
                     {
+                        fprintf(file_output, "<ID> %d <\\ID> ", ID);
                         set_rects(file_output, caracteristics);
                         fprintf(file_output, "<data> %d %f %f %f <\\data> \n", count_image, sum, scare_sum, variance);
                         nb_caract++;
@@ -253,14 +259,6 @@ void Training::generate_caracteristics(char* file_name)
 {
     FILE * file = fopen(file_name, "w");
 
-    int count_image = 0;
-    float sum = 0;
-    float variance = 0.f;
-    float scare_sum = 0.f;
-
-    unsigned int nb_caract;
-    unsigned int nb_rectangle;
-
     unsigned int nb_caracts = 0;
 
     if(file != NULL)
@@ -274,40 +272,7 @@ void Training::generate_caracteristics(char* file_name)
                 {
                     for(int height = 2; height <= INIT_SIZE - y; height++)
                     {
-                        for(nb_caract = 0; nb_caract < all_caract_type.size(); nb_caract++)
-                        {
-                            for(nb_rectangle = 0; nb_rectangle < all_caract_type[nb_caract].nb_rect; nb_rectangle++)
-                            {
-                                fprintf(file, "<rect> ");
-                                if(nb_rectangle == 0)
-                                    fprintf(file, "%d %d %d %d %d ", x, y, length, height, FIRST_RECT_WIEGHT);
-                                else
-                                {
-                                    define_caract_t define_caract = all_caract_type[nb_caract];
-                                    define_rect_caract_t rect_caract = define_caract.caract[nb_rectangle - 1];
-                                    int temp_length = length / rect_caract.length_factor;
-                                    int temp_hieght = height / rect_caract.height_factor;
-                                    int temp_x;
-                                    if(rect_caract.offset_x == SAME_POSITION)
-                                        temp_x = x;
-                                    else
-                                        temp_x = x + length / rect_caract.offset_x;
-                                    int temp_y;
-                                    if(rect_caract.offset_y == SAME_POSITION)
-                                        temp_y = y;
-                                    else
-                                        temp_y = y + height / rect_caract.offset_y;
-
-                                    fprintf(file, "%d %d %d %d %d ", temp_x, temp_y, temp_length, temp_hieght, rect_caract.wieght);
-                                }
-                                fprintf(file, "<\\rect> ");
-                            }
-                            fprintf(file, "<data> ");
-                            fprintf(file, "%d %f %f %f", count_image, sum, scare_sum, variance);
-                            fprintf(file, " <\\data> \n");
-
-                            nb_caracts++;
-                        }
+                       generate_caracteristics_0d(file, x, y, length, height, nb_caracts);
                     }
                 }
             }
@@ -319,12 +284,54 @@ void Training::generate_caracteristics(char* file_name)
         printf("Error to open %s error code %d \n", file_name, errno);
 }
 
+void Training::generate_caracteristics_0d(FILE* file, int x, int y, int length, int height, unsigned int &nb_caracts)
+{
+    unsigned int nb_caract;
+    unsigned int nb_rectangle;
+
+     for(nb_caract = 0; nb_caract < all_caract_type.size(); nb_caract++)
+    {
+        fprintf(file, "<ID> %u <\\ID> ", nb_caract);
+        for(nb_rectangle = 0; nb_rectangle < all_caract_type[nb_caract].nb_rect; nb_rectangle++)
+        {
+            fprintf(file, "<rect> ");
+            if(nb_rectangle == 0)
+                fprintf(file, "%d %d %d %d %d ", x, y, length, height, FIRST_RECT_WIEGHT);
+            else
+            {
+                define_caract_t define_caract = all_caract_type[nb_caract];
+                define_rect_caract_t rect_caract = define_caract.caract[nb_rectangle - 1];
+                int temp_length = length / rect_caract.length_factor;
+                int temp_hieght = height / rect_caract.height_factor;
+                int temp_x;
+                if(rect_caract.offset_x == SAME_POSITION)
+                    temp_x = x;
+                else
+                    temp_x = x + length / rect_caract.offset_x;
+                int temp_y;
+                if(rect_caract.offset_y == SAME_POSITION)
+                    temp_y = y;
+                else
+                    temp_y = y + height / rect_caract.offset_y;
+
+                fprintf(file, "%d %d %d %d %d ", temp_x, temp_y, temp_length, temp_hieght, rect_caract.wieght);
+            }
+            fprintf(file, "<\\rect> ");
+        }
+        fprintf(file, "<data> ");
+        fprintf(file, "%d %f %f %f", 0, 0., 0., 0.);//count image, sum, scare_sum, variance
+        fprintf(file, " <\\data> \n");
+
+        nb_caracts++;
+    }
+}
+
 void Training::generate_caracteristics_from_file(char* file_name_new, char* file_name_base)
 {
     FILE * new_file = fopen(file_name_new, "w");
     FILE * base_file = fopen(file_name_base, "r");
 
-    int count_image;
+    int count_image, ID;
     float sum,scare_sum,variance;
     caract_t caracteristics;
     unsigned int nb_caracts = 0;
@@ -338,6 +345,7 @@ void Training::generate_caracteristics_from_file(char* file_name_new, char* file
             int i = 0;
             do
             {
+                ID = get_id(base_file);
                 i = get_rects(base_file, caracteristics);
 
                 if(i == 0)
@@ -347,6 +355,7 @@ void Training::generate_caracteristics_from_file(char* file_name_new, char* file
                     sum = 0.f;
                     scare_sum = 0.f;
                     variance = 0.f;
+                    fprintf(new_file, "<ID> %d <\\ID> ", ID);
                     set_rects(new_file, caracteristics);
                     fprintf(new_file, "%d %f %f %f <\\data> \n", count_image, sum, scare_sum, variance);
                     nb_caracts++;
@@ -376,7 +385,7 @@ void Training::simplify_true_caract()
     float sum,scare_sum,variance;
     bool test;
     int count_caract = 0;
-    int nb_caract_in_file;
+    int nb_caract_in_file, ID_true, ID_false;
 
     if(tmp_file != NULL)
     {
@@ -397,6 +406,7 @@ void Training::simplify_true_caract()
                         int out = 0;
                         do
                         {
+                            ID_false = get_id(false_file);
                             in = get_rects(false_file, caracteristics_false);
 
                             if(nb_caract_in_file != 0)
@@ -404,16 +414,18 @@ void Training::simplify_true_caract()
 
                             do
                             {
+                                ID_true = get_id(true_file);
                                 out = get_rects(true_file, caracteristics_true);
                                 if(out == 0)
                                 {
                                     fscanf(true_file, "%d %f %f %f <\\data> ", &count_image, &sum, &scare_sum, &variance);
-                                    test =  compare_caracts(caracteristics_true, caracteristics_false);
+                                    test =  compare_caracts(caracteristics_true, caracteristics_false, ID_true, ID_false);
                                     if(nb_caract_in_file == 0)
                                         test = 0;
 
                                     if(((!test) || (in != 0)) && (out == 0))
                                     {
+                                        fprintf(tmp_file,"<ID> %d <\\ID> ", ID_true);
                                         set_rects(tmp_file, caracteristics_true);
                                         fprintf(tmp_file, "<data> %d %f %f %f <\\data>\n", count_image, sum, scare_sum, variance);
                                         count_caract++;

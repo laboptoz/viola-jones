@@ -53,9 +53,10 @@ public :
 
     std::vector<define_caract_t> all_caract_type;
 
+    int get_id(FILE* file);
     int get_rects(FILE* file, caract_t &caract);
     void set_rects(FILE* file, caract_t caract);
-    bool compare_caracts(caract_t caract1, caract_t caract2);
+    bool compare_caracts(caract_t caract1, caract_t caract2, int ID_1, int ID_2);
     unsigned int get_nb_caracteristics(FILE* file);
     void define_all_caract_type();
 };

@@ -42,6 +42,7 @@ private :
 
     void set_image_caract(char* file_name, caracteristic_type_t caracteristic_type);
     void generate_caracteristics(char* file_name);
+    void generate_caracteristics_0d(FILE* file, int x, int y, int length, int height, unsigned int &nb_caracts);
     void generate_caracteristics_from_file(char* file_name_new, char* file_name_base);
     void simplify_true_caract();
     void cpy_temp(caracteristic_type_t caracteristic_type);

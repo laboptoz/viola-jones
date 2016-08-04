@@ -12,6 +12,23 @@ Caracteristics::~Caracteristics()
 
 }
 
+int Caracteristics::get_id(FILE* file)
+{
+    char tag_id[] = "<ID>";
+    char temp[50];
+    int ID, test;
+
+    do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_id)) && (test == 1));
+    if(test != 1)
+        return -1;
+
+    test = fscanf(file,"%d",&ID);
+    if(test != 1)
+        return -1;
+    else
+        return ID;
+}
+
 int Caracteristics::get_rects(FILE* file, caract_t &caract)
 {
         char tag_rect[] = "<rect>";
@@ -53,22 +70,27 @@ void Caracteristics::set_rects(FILE* file, caract_t caract)
         }
 }
 
-bool Caracteristics::compare_caracts(caract_t caract1, caract_t caract2)
+bool Caracteristics::compare_caracts(caract_t caract1, caract_t caract2, int ID_1, int ID_2)
 {
     bool result = true;
 
-    if(caract1.nb_rect == caract2.nb_rect)
+    if(ID_1 == ID_2)
     {
-        for(unsigned int i = 0; i < caract1.nb_rect; i++)
+        if(caract1.nb_rect == caract2.nb_rect)
         {
-            result = result &&
-                    (caract1.caract[i].x == caract2.caract[i].x) &&
-                    (caract1.caract[i].y == caract2.caract[i].y) &&
-                    (caract1.caract[i].length == caract2.caract[i].length) &&
-                    (caract1.caract[i].height == caract2.caract[i].height) &&
-                    (caract1.caract[i].wieght == caract2.caract[i].wieght);
+            for(unsigned int i = 0; i < caract1.nb_rect; i++)
+            {
+                result = result &&
+                        (caract1.caract[i].x == caract2.caract[i].x) &&
+                        (caract1.caract[i].y == caract2.caract[i].y) &&
+                        (caract1.caract[i].length == caract2.caract[i].length) &&
+                        (caract1.caract[i].height == caract2.caract[i].height) &&
+                        (caract1.caract[i].wieght == caract2.caract[i].wieght);
+            }
+            return result;
         }
-        return result;
+        else
+            return -1;
     }
     else
         return -1;
