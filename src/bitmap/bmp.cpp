@@ -12,9 +12,9 @@
 #define G_COEF 0.59
 #define B_COEF 0.11
 
-#define MASK_1 0x01
-#define MASK_4 0x0f
-#define MASK_8 0xff
+constexpr uint8_t MASK_1 = 0x01;
+constexpr uint8_t MASK_4 = 0x0f;
+constexpr uint8_t MASK_8 = 0xff;
 
 bmp::bmp()
 {
@@ -66,28 +66,59 @@ void bmp::write_bmp(char* file_name)
         printf("Error write %d \n", errno);
 }
 
-void bmp::compute_integral_image(std::vector<std::vector<unsigned long int> > &image) //the image must be a rectangle !!!
+void bmp::compute_integral_image_0d(std::vector<std::vector<unsigned long int> > &image, std::vector<std::vector<unsigned long int> > &integral_image) //the image must be a rectangle !!!
 {
-  for(unsigned int i = 0; i < image.size(); i++)
-    for(unsigned int j = 0; j < image[i].size(); j++)
-    {
-      if((i <= 0) || (j <= 0))
-      {
-          if(i > 0)
-            image[i][j] += (unsigned long int)image[i-1][j];
+    integral_image.resize(image.size());
+    for(int i = integral_image.size() - 1; i >= 0; i--)
+        integral_image[i].resize(image[i].size());
 
-          if(j > 0)
-            image[i][j] += (unsigned long int)image[i][j-1];
-      }
-      else
-        image[i][j] += (unsigned long int)image[i-1][j] + (unsigned long int)image[i][j-1] - (unsigned long int)image[i-1][j-1];
-    }
+    for(unsigned int i = 0; i < integral_image.size(); i++)
+        for(unsigned int j = 0; j < integral_image[i].size(); j++)
+        {
+            if((i <= 0) || (j <= 0))
+            {
+                if(i > 0)
+                    integral_image[i][j] = image[i][j] + integral_image[i-1][j];
+
+                if(j > 0)
+                    integral_image[i][j] = image[i][j] + integral_image[i][j-1];
+                else if((j == 0) && (i == 0))
+                    integral_image[i][j] = image[i][j];
+            }
+            else
+                integral_image[i][j] = image[i][j] + integral_image[i-1][j] + integral_image[i][j-1] - integral_image[i-1][j-1];
+        }
+    image_mean = integral_image[integral_image.size()-1][integral_image[0].size()-1] / (float)(integral_image.size()*integral_image[0].size());
+}
+
+void bmp::compute_integral_image_45d(std::vector<std::vector<unsigned long int> > &image, std::vector<std::vector<unsigned long int> > &integral_image) //the image must be a rectangle !!!
+{
+    integral_image.resize(image.size());
+    for(int i = integral_image.size() - 1; i >= 0; i--)
+        integral_image[i].resize(image[i].size());
+
+    for(unsigned int i = 0; i < integral_image.size(); i++)
+        for(unsigned int j = 0; j < integral_image[i].size(); j++)
+        {
+            integral_image[i][j] = image[i][j];
+            if(i > 0)
+            {
+                integral_image[i][j] += image[i-1][j];
+
+                if(j > 0)
+                    integral_image[i][j] += integral_image[i-1][j -1];
+                if(j < integral_image[i].size() - 1)
+                    integral_image[i][j] += integral_image[i-1][j +1];
+                if(i > 1)
+                    integral_image[i][j] -= integral_image[i-2][j];
+            }
+        }
 }
 
 float bmp::get_sum(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract)
 {
     int mini = std::min(image.size(), image[0].size());
-    float factor = (float)mini / INIT_SIZE;
+    float factor = (float)(mini - 1) / INIT_SIZE;
     std::vector<long int> results;
     results.resize(p_caract.nb_rect);
     float result = 0.f;
@@ -108,7 +139,7 @@ float bmp::get_sum(std::vector<std::vector<unsigned long int> > &image, caract_t
         result += results[i]*p_caract.caract[i].wieght;
     }
     float mean = result / ((float)p_caract.caract[0].length*(float)p_caract.caract[0].height*factor*factor);
-    return(mean);
+    return(mean-image_mean);
 }
 
 /*

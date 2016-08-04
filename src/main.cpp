@@ -13,13 +13,15 @@
 void aff_vect(std::vector< std::vector<unsigned long int> > &vect )
 {
   std::cout << "vect is:" << std::endl;
-  for (std::vector<std::vector<unsigned long int> >::iterator it = vect.begin(); it != vect.end(); ++it)
+  for (auto& row : vect)
   {
-    for (std::vector<unsigned long int>::iterator its = it->begin(); its != it->end(); ++its)
-      std::cout << ' ' << (unsigned long int)*its;
+    for (auto& element : row)
+      std::cout << ' ' << (unsigned long int)element;
     std::cout << '\n';
   }
 }
+
+using VectI = std::vector<int>;
 
 void out(std::vector<std::vector<unsigned long int> > &image, int x, int y, int l, int w)
 {
@@ -49,7 +51,7 @@ void find_best()
     char file_cara[] = "D:/projet/AI/viola&jones/file/tmp.txt";
     unsigned long int i;
 
-    char file_in[] = "D:/projet/AI/viola&jones/file/true/004.bmp"; //chemin à changer
+    char file_in[] = "D:/projet/AI/viola&jones/file/true/045.bmp"; //chemin à changer
     char file_out[] = "D:/projet/AI/viola&jones/file/true/out.bmp"; //chemin à changer
     Caracteristics caracteristic;
     caract_t caracteristics;

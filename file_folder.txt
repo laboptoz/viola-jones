@@ -80,6 +80,12 @@
 		<FILE> 070.bmp <\FILE>
 		<FILE> 071.bmp <\FILE>
 		<FILE> 072.bmp <\FILE>
+		<FILE> 073.bmp <\FILE>
+		<FILE> 074.bmp <\FILE>
+		<FILE> 075.bmp <\FILE>
+		<FILE> 076.bmp <\FILE>
+		<FILE> 077.bmp <\FILE>
+		<FILE> 078.bmp <\FILE>
 	<\TRUE>
 	<FALSE>
 		<FOLDER> D:\projet\AI\viola&jones\file\false\ <\FOLDER>

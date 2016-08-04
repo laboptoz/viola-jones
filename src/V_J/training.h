@@ -33,6 +33,9 @@ private :
     FILE* m_folder_file;
     enum last_file_used_t m_last_file_used;
 
+    std::vector< std::vector<unsigned long int> > integral_image_0d;
+    std::vector< std::vector<unsigned long int> > integral_image_45d;
+
     char m_true_file[100];
     char m_false_file[100];
     char m_tmp_file[100];
