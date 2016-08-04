@@ -39,7 +39,8 @@ public:
   void write_bmp(char* file_name);
   void compute_integral_image_0d(std::vector<std::vector<unsigned long int> > &image, std::vector<std::vector<unsigned long int> > &integral_image);
   void compute_integral_image_45d(std::vector<std::vector<unsigned long int> > &image, std::vector<std::vector<unsigned long int> > &integral_image);
-  float get_sum(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract);
+  float get_sum_0d(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract);
+  float get_sum_45d(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract);
 
   bmp_t input_bmp;
   bmp_t output_bmp;

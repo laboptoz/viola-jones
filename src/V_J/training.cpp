@@ -50,12 +50,12 @@ void Training::generate_caracteristic_file()
     generate_caracteristics(m_true_file);
     traine_true_image();
 
-    /*printf("\ngenerate %s \n", m_false_file);
+    printf("\ngenerate %s \n", m_false_file);
     generate_caracteristics_from_file(m_false_file, m_true_file);
     traine_false_image();
 
     printf("\nsimplify caract in %s \n", m_tmp_file);
-    simplify_true_caract();*/
+    simplify_true_caract();
 }
 
 void Training::traine_true_image()
@@ -214,9 +214,9 @@ void Training::set_image_caract(char* file_name, caracteristic_type_t caracteris
                     count_image ++;
 
                     if(ID < 10)
-                        result = BMP.get_sum(integral_image_0d, caracteristics);
+                        result = BMP.get_sum_0d(integral_image_0d, caracteristics);
                     else
-                        result = BMP.get_sum(integral_image_45d, caracteristics);
+                        result = BMP.get_sum_45d(integral_image_45d, caracteristics);
 
                     sum += result;
                     scare_sum = (scare_sum*(count_image - 1) + result*result)/count_image;
@@ -273,6 +273,7 @@ void Training::generate_caracteristics(char* file_name)
                     for(int height = 2; height <= INIT_SIZE - y; height++)
                     {
                        generate_caracteristics_0d(file, x, y, length, height, nb_caracts);
+                       generate_caracteristics_45d(file, x, y, length, height, nb_caracts);
                     }
                 }
             }
@@ -323,6 +324,62 @@ void Training::generate_caracteristics_0d(FILE* file, int x, int y, int length, 
         fprintf(file, " <\\data> \n");
 
         nb_caracts++;
+    }
+}
+
+void Training::generate_caracteristics_45d(FILE* file, int x, int y, int length, int height, unsigned int &nb_caracts)
+{
+    /*
+        L
+          --
+       -- -- -- H
+    xy -- --
+       --
+    */
+    if((x + length + height - 2 < INIT_SIZE -1) && (y - length + 1 >= 0) && (y + height - 1 < INIT_SIZE -1))
+    {
+        unsigned int nb_caract;
+        unsigned int nb_rectangle;
+
+         for(nb_caract = 0; nb_caract < all_caract_type.size(); nb_caract++)
+        {
+            fprintf(file, "<ID> %u <\\ID> ", nb_caract+10);
+            for(nb_rectangle = 0; nb_rectangle < all_caract_type[nb_caract].nb_rect; nb_rectangle++)
+            {
+                fprintf(file, "<rect> ");
+                if(nb_rectangle == 0)
+                    fprintf(file, "%d %d %d %d %d ", x, y, length, height, FIRST_RECT_WIEGHT);
+                else
+                {
+                    define_caract_t define_caract = all_caract_type[nb_caract];
+                    define_rect_caract_t rect_caract = define_caract.caract[nb_rectangle - 1];
+                    int temp_length = length / rect_caract.length_factor;
+                    int temp_hieght = height / rect_caract.height_factor;
+                    int temp_x = x;
+                    int temp_y = y;
+
+                    if(rect_caract.offset_x != SAME_POSITION)
+                    {
+                        temp_x += length / rect_caract.offset_x;
+                        temp_y -= length / rect_caract.offset_x;
+                    }
+
+                    if(rect_caract.offset_y != SAME_POSITION)
+                    {
+                        temp_y += height / rect_caract.offset_y;
+                        temp_x += height / rect_caract.offset_y;
+                    }
+
+                    fprintf(file, "%d %d %d %d %d ", temp_x, temp_y, temp_length, temp_hieght, rect_caract.wieght);
+                }
+                fprintf(file, "<\\rect> ");
+            }
+            fprintf(file, "<data> ");
+            fprintf(file, "%d %f %f %f", 0, 0., 0., 0.);//count image, sum, scare_sum, variance
+            fprintf(file, " <\\data> \n");
+
+            nb_caracts++;
+        }
     }
 }
 

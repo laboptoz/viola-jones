@@ -115,7 +115,7 @@ void bmp::compute_integral_image_45d(std::vector<std::vector<unsigned long int> 
         }
 }
 
-float bmp::get_sum(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract)
+float bmp::get_sum_0d(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract)
 {
     int mini = std::min(image.size(), image[0].size());
     float factor = (float)(mini - 1) / INIT_SIZE;
@@ -139,6 +139,49 @@ float bmp::get_sum(std::vector<std::vector<unsigned long int> > &image, caract_t
         result += results[i]*p_caract.caract[i].wieght;
     }
     float mean = result / ((float)p_caract.caract[0].length*(float)p_caract.caract[0].height*factor*factor);
+    return(mean-image_mean);
+}
+
+float bmp::get_sum_45d(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract)
+{
+    /*    2
+       1    3
+         4
+    */
+    int mini = std::min(image.size(), image[0].size());
+    float factor = (float)(mini - 1) / INIT_SIZE;
+    std::vector<long int> results;
+    results.resize(p_caract.nb_rect);
+    float result = 0.f;
+
+    int x1, y1;
+    int x2, y2;
+    int x3, y3;
+    int x4, y4;
+    for(int i = p_caract.nb_rect - 1; i >= 0; i--)
+    {
+        x1 = p_caract.caract[i].x*factor;
+        y1 = p_caract.caract[i].y*factor;
+
+        x2 = (p_caract.caract[i].x + p_caract.caract[i].length - 1)*factor;
+        y2 = (p_caract.caract[i].y - p_caract.caract[i].length + 1)*factor;
+
+        x3 = x2 + (p_caract.caract[i].height -1)*factor;
+        y3 = y2 + (p_caract.caract[i].height -1)*factor;
+
+        x4 = (p_caract.caract[i].x + p_caract.caract[i].height -1)*factor;
+        y4 = (p_caract.caract[i].y + p_caract.caract[i].height -1)*factor;
+
+        /*std::cout << " " << p_caract.caract[i].x << " " << p_caract.caract[i].y << " : " << p_caract.caract[i].x + p_caract.caract[i].length - 1 << " " <<
+        p_caract.caract[i].y - p_caract.caract[i].length + 1 << " : " << p_caract.caract[i].x + p_caract.caract[i].length - 1 + p_caract.caract[i].height -1 << " " <<
+        p_caract.caract[i].y - p_caract.caract[i].length + 1 + p_caract.caract[i].height -1 << " : " << p_caract.caract[i].x + p_caract.caract[i].height -1 << " " <<
+        p_caract.caract[i].y + p_caract.caract[i].height -1 << std::endl;*/
+
+        results[i] = image[x3][y3] - image[x2][y2];
+        results[i] += -image[x4][y4] + image[x1][y1];
+        result += results[i]*p_caract.caract[i].wieght;
+    }
+    float mean = result / (((float)p_caract.caract[0].length*(float)p_caract.caract[0].height + (float)(p_caract.caract[0].length-1)*(float)(p_caract.caract[0].height -1))*factor*factor);
     return(mean-image_mean);
 }
 
