@@ -10,19 +10,6 @@
 #include "V_J/training.h"
 #include "V_J/caract.h"
 
-void aff_vect(std::vector< std::vector<unsigned long int> > &vect )
-{
-  std::cout << "vect is:" << std::endl;
-  for (auto& row : vect)
-  {
-    for (auto& element : row)
-      std::cout << ' ' << (unsigned long int)element;
-    std::cout << '\n';
-  }
-}
-
-using VectI = std::vector<int>;
-
 void out(std::vector<std::vector<unsigned long int> > &image, int x, int y, int l, int w)
 {
     int mini = std::min(image.size(), image[0].size());
@@ -33,30 +20,36 @@ void out(std::vector<std::vector<unsigned long int> > &image, int x, int y, int 
     l = l*factor;
     w = w*factor;
 
-    int j,i;
+    int i;
 
-    for (i = x; i < x+l; i++)
+    for(i = 0; i < l; i++)
     {
-        for (j = y; j < y+w; j++)
-        {
-            if( (i == x) || (i == x+l-1) || (j == y) || (j == y+w-1) )
-                image[i][j] = 0;
-        }
+        image[i][y] = 0;
+        image[i][y+w-1] = 0;
     }
 
+    for(i = 0; i < w; i++)
+    {
+        image[x][i] = 0;
+        image[x+l-1][i] = 0;
+    }
 }
 
 void find_best()
 {
     char file_cara[] = "D:/projet/AI/viola&jones/file/tmp.txt";
     unsigned long int i;
+    int ID;
 
-    char file_in[] = "D:/projet/AI/viola&jones/file/true/045.bmp"; //chemin à changer
+    char file_in[] = "D:/projet/AI/viola&jones/file/true/001.bmp"; //chemin à changer
     char file_out[] = "D:/projet/AI/viola&jones/file/true/out.bmp"; //chemin à changer
     Caracteristics caracteristic;
     caract_t caracteristics;
     bmp BMP;
     bmp_t bmps = BMP.read_bmp(file_in);
+
+    int count_image, nb_charact = 0;
+    float sum, scare_sum, variance;
 
     errno = 0;
     FILE * file_input = fopen(file_cara, "r");
@@ -70,10 +63,17 @@ void find_best()
 
                 do
                 {
+                    ID = caracteristic.get_id(file_input);
                     i = caracteristic.get_rects(file_input, caracteristics);
-                    out(BMP.input_bmp.image,caracteristics.caract[0].x,caracteristics.caract[0].y,caracteristics.caract[0].length,caracteristics.caract[0].height);
+                    fscanf(file_input, "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance);
+                    if((ID == 5) && (variance <= 23.2))
+                    {
+                        out(BMP.input_bmp.image,caracteristics.caract[0].x,caracteristics.caract[0].y,caracteristics.caract[0].length,caracteristics.caract[0].height);
+                        nb_charact ++;
+                    }
                 }
                 while(i == 0);
+                printf("\n%d characteristics draws\n\n", nb_charact);
             }
             else
                 printf("\nNo caracteristic found to generate output\n");

@@ -31,8 +31,8 @@ int Caracteristics::get_id(FILE* file)
 
 int Caracteristics::get_rects(FILE* file, caract_t &caract)
 {
-        char tag_rect[] = "<rect>";
-        char tag_rect_end[] = "<\\rect>";
+        char tag_rect[] = "<R>";
+        char tag_rect_end[] = "<\\R>";
         char temp[50];
         caract.nb_rect = 0;
         caract.caract.clear();
@@ -62,11 +62,12 @@ int Caracteristics::get_rects(FILE* file, caract_t &caract)
     return 0;
 }
 
-void Caracteristics::set_rects(FILE* file, caract_t caract)
+void Caracteristics::set_rects(FILE* file, caract_t &caract)
 {
-        for(unsigned int i = 0; i < caract.nb_rect; i++)
+        register unsigned int i;
+        for(i = 0; i < caract.nb_rect; i++)
         {
-            fprintf(file, "<rect> %d %d %d %d %d <\\rect> ", caract.caract[i].x, caract.caract[i].y, caract.caract[i].length,caract.caract[i].height, caract.caract[i].wieght);
+            fprintf(file, "<R> %d %d %d %d %d <\\R> ", caract.caract[i].x, caract.caract[i].y, caract.caract[i].length,caract.caract[i].height, caract.caract[i].wieght);
         }
 }
 
@@ -78,7 +79,8 @@ bool Caracteristics::compare_caracts(caract_t caract1, caract_t caract2, int ID_
     {
         if(caract1.nb_rect == caract2.nb_rect)
         {
-            for(unsigned int i = 0; i < caract1.nb_rect; i++)
+            register unsigned int i;
+            for(i = 0; i < caract1.nb_rect; i++)
             {
                 result = result &&
                         (caract1.caract[i].x == caract2.caract[i].x) &&

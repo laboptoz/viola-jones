@@ -68,12 +68,14 @@ void bmp::write_bmp(char* file_name)
 
 void bmp::compute_integral_image_0d(std::vector<std::vector<unsigned long int> > &image, std::vector<std::vector<unsigned long int> > &integral_image) //the image must be a rectangle !!!
 {
+    register unsigned int i,j;
+
     integral_image.resize(image.size());
-    for(int i = integral_image.size() - 1; i >= 0; i--)
+    for(i = 0; i < integral_image.size(); i++)
         integral_image[i].resize(image[i].size());
 
-    for(unsigned int i = 0; i < integral_image.size(); i++)
-        for(unsigned int j = 0; j < integral_image[i].size(); j++)
+    for(i = 0; i < integral_image.size(); i++)
+        for(j = 0; j < integral_image[i].size(); j++)
         {
             if((i <= 0) || (j <= 0))
             {
@@ -93,12 +95,14 @@ void bmp::compute_integral_image_0d(std::vector<std::vector<unsigned long int> >
 
 void bmp::compute_integral_image_45d(std::vector<std::vector<unsigned long int> > &image, std::vector<std::vector<unsigned long int> > &integral_image) //the image must be a rectangle !!!
 {
+    register unsigned int i, j;
+
     integral_image.resize(image.size());
-    for(int i = integral_image.size() - 1; i >= 0; i--)
+    for(i = 0; i < integral_image.size(); i++)
         integral_image[i].resize(image[i].size());
 
-    for(unsigned int i = 0; i < integral_image.size(); i++)
-        for(unsigned int j = 0; j < integral_image[i].size(); j++)
+    for(i = 0; i < integral_image.size(); i++)
+        for(j = 0; j < integral_image[i].size(); j++)
         {
             integral_image[i][j] = image[i][j];
             if(i > 0)
@@ -115,7 +119,7 @@ void bmp::compute_integral_image_45d(std::vector<std::vector<unsigned long int> 
         }
 }
 
-float bmp::get_sum_0d(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract)
+float bmp::get_sum_0d(std::vector<std::vector<unsigned long int> > &image, caract_t &p_caract)
 {
     int mini = std::min(image.size(), image[0].size());
     float factor = (float)(mini - 1) / INIT_SIZE;
@@ -127,12 +131,15 @@ float bmp::get_sum_0d(std::vector<std::vector<unsigned long int> > &image, carac
     int y_min;
     int x_max;
     int y_max;
-    for(int i = p_caract.nb_rect - 1; i >= 0; i--)
+
+    register int i;
+
+    for(i = p_caract.nb_rect - 1; i >= 0; i--)
     {
         x_min = p_caract.caract[i].x*factor;
         y_min = p_caract.caract[i].y*factor;
-        x_max = (p_caract.caract[i].x + p_caract.caract[i].length)*factor;
-        y_max = (p_caract.caract[i].y + p_caract.caract[i].height)*factor;
+        x_max = x_min + (p_caract.caract[i].length)*factor;
+        y_max = y_min + (p_caract.caract[i].height)*factor;
 
         results[i] = image[x_min][y_min] - image[x_max][y_min];
         results[i] += -image[x_min][y_max] + image[x_max][y_max];
@@ -142,7 +149,7 @@ float bmp::get_sum_0d(std::vector<std::vector<unsigned long int> > &image, carac
     return(mean-image_mean);
 }
 
-float bmp::get_sum_45d(std::vector<std::vector<unsigned long int> > &image, caract_t p_caract)
+float bmp::get_sum_45d(std::vector<std::vector<unsigned long int> > &image, caract_t &p_caract)
 {
     /*    2
        1    3
@@ -158,24 +165,26 @@ float bmp::get_sum_45d(std::vector<std::vector<unsigned long int> > &image, cara
     int x2, y2;
     int x3, y3;
     int x4, y4;
-    for(int i = p_caract.nb_rect - 1; i >= 0; i--)
+
+    int height_1_factor;
+
+    register int i;
+
+    for(i = p_caract.nb_rect - 1; i >= 0; i--)
     {
+        height_1_factor = (p_caract.caract[i].height -1)*factor;
+
         x1 = p_caract.caract[i].x*factor;
         y1 = p_caract.caract[i].y*factor;
 
         x2 = (p_caract.caract[i].x + p_caract.caract[i].length - 1)*factor;
         y2 = (p_caract.caract[i].y - p_caract.caract[i].length + 1)*factor;
 
-        x3 = x2 + (p_caract.caract[i].height -1)*factor;
-        y3 = y2 + (p_caract.caract[i].height -1)*factor;
+        x3 = x2 + height_1_factor;
+        y3 = y2 + height_1_factor;
 
-        x4 = (p_caract.caract[i].x + p_caract.caract[i].height -1)*factor;
-        y4 = (p_caract.caract[i].y + p_caract.caract[i].height -1)*factor;
-
-        /*std::cout << " " << p_caract.caract[i].x << " " << p_caract.caract[i].y << " : " << p_caract.caract[i].x + p_caract.caract[i].length - 1 << " " <<
-        p_caract.caract[i].y - p_caract.caract[i].length + 1 << " : " << p_caract.caract[i].x + p_caract.caract[i].length - 1 + p_caract.caract[i].height -1 << " " <<
-        p_caract.caract[i].y - p_caract.caract[i].length + 1 + p_caract.caract[i].height -1 << " : " << p_caract.caract[i].x + p_caract.caract[i].height -1 << " " <<
-        p_caract.caract[i].y + p_caract.caract[i].height -1 << std::endl;*/
+        x4 = x1 + height_1_factor;
+        y4 = y1 + height_1_factor;
 
         results[i] = image[x3][y3] - image[x2][y2];
         results[i] += -image[x4][y4] + image[x1][y1];
