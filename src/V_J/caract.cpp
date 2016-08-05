@@ -200,5 +200,5 @@ void Caracteristics::define_all_caract_type()
     all_caract_type.push_back(define_caract);
 
 
-    std::cout << "nb caracteristic patern : " << all_caract_type.size() << std::endl;
+    std::cout << "nb caracteristic patern : " << all_caract_type.size() << std::endl << std::endl;
 }

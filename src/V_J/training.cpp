@@ -337,7 +337,7 @@ void Training::generate_caracteristics_45d(FILE* file, int x, int y, int length,
     xy -- --
        --
     */
-    if((x + length + height - 2 < INIT_SIZE -1) && (y - length + 1 >= 0) && (y + height - 1 < INIT_SIZE -1))
+    if((x + length + height - 2 <= INIT_SIZE) && (y - length + 1 >= 0) && (y + height - 1 <= INIT_SIZE))
     {
         unsigned int nb_caract;
         unsigned int nb_rectangle;
