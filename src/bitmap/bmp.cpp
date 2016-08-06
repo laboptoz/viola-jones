@@ -69,6 +69,7 @@ void bmp::write_bmp(char* file_name)
 void bmp::compute_integral_image_0d(std::vector<std::vector<unsigned long int> > &image, std::vector<std::vector<unsigned long int> > &integral_image) //the image must be a rectangle !!!
 {
     register unsigned int i,j;
+    register unsigned long int scare_sum = 0;
 
     integral_image.resize(image.size());
     for(i = 0; i < integral_image.size(); i++)
@@ -77,6 +78,7 @@ void bmp::compute_integral_image_0d(std::vector<std::vector<unsigned long int> >
     for(i = 0; i < integral_image.size(); i++)
         for(j = 0; j < integral_image[i].size(); j++)
         {
+            scare_sum += image[i][j] * image[i][j];
             if((i <= 0) || (j <= 0))
             {
                 if(i > 0)
@@ -91,6 +93,8 @@ void bmp::compute_integral_image_0d(std::vector<std::vector<unsigned long int> >
                 integral_image[i][j] = image[i][j] + integral_image[i-1][j] + integral_image[i][j-1] - integral_image[i-1][j-1];
         }
     image_mean = integral_image[integral_image.size()-1][integral_image[0].size()-1] / (float)(integral_image.size()*integral_image[0].size());
+    scare_sum = scare_sum - image_mean*image_mean;
+    ecart_type = scare_sum >= 0 ? sqrtf(scare_sum) : 1.0f;
 }
 
 void bmp::compute_integral_image_45d(std::vector<std::vector<unsigned long int> > &image, std::vector<std::vector<unsigned long int> > &integral_image) //the image must be a rectangle !!!
@@ -145,8 +149,8 @@ float bmp::get_sum_0d(std::vector<std::vector<unsigned long int> > &image, carac
         results[i] += -image[x_min][y_max] + image[x_max][y_max];
         result += results[i]*p_caract.caract[i].wieght;
     }
-    float mean = result / ((float)p_caract.caract[0].length*(float)p_caract.caract[0].height*factor*factor);
-    return(mean-image_mean);
+    unsigned long int nb_pixel = p_caract.caract[0].length*p_caract.caract[0].height*factor*factor;
+    return((result-image_mean*nb_pixel)/ecart_type/(float)nb_pixel);
 }
 
 float bmp::get_sum_45d(std::vector<std::vector<unsigned long int> > &image, caract_t &p_caract)
@@ -190,8 +194,8 @@ float bmp::get_sum_45d(std::vector<std::vector<unsigned long int> > &image, cara
         results[i] += -image[x4][y4] + image[x1][y1];
         result += results[i]*p_caract.caract[i].wieght;
     }
-    float mean = result / (((float)p_caract.caract[0].length*(float)p_caract.caract[0].height + (float)(p_caract.caract[0].length-1)*(float)(p_caract.caract[0].height -1))*factor*factor);
-    return(mean-image_mean);
+    unsigned long int nb_pixel = ((float)p_caract.caract[0].length*(float)p_caract.caract[0].height + (float)(p_caract.caract[0].length-1)*(float)(p_caract.caract[0].height -1))*factor*factor;
+    return((result-image_mean*nb_pixel)/ecart_type/(float)nb_pixel);
 }
 
 /*

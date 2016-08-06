@@ -218,6 +218,7 @@ void Training::set_image_caract(char* file_name, caracteristic_type_t caracteris
                     else
                         result = BMP.get_sum_45d(integral_image_45d, caracteristics);
 
+                    result = result*10000;
                     sum += result;
                     scare_sum = (scare_sum*(count_image - 1) + result*result)/count_image;
                     mean = sum / (float)count_image;

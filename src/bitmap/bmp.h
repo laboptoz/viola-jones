@@ -46,6 +46,7 @@ public:
   bmp_t output_bmp;
 
   float image_mean;
+  float ecart_type;
 
 private:
   void get_bmp_header(FILE* file);

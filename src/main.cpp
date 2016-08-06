@@ -91,7 +91,7 @@ void find_best()
                     ID = caracteristic.get_id(file_input);
                     i = caracteristic.get_rects(file_input, caracteristics);
                     fscanf(file_input, "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance);
-                    if(1/*((ID == 10) || (ID == 11))&& (variance <= 24)*/)
+                    if(1/*((ID == 10) || (ID == 11))&& (variance <= 16.)*/)
                     {
                         if(ID<10)
                             draw_0d(BMP.input_bmp.image,caracteristics.caract[0].x,caracteristics.caract[0].y,caracteristics.caract[0].length,caracteristics.caract[0].height);
@@ -118,9 +118,9 @@ int main ()
 {
   char file_folder[] = "D:/projet/AI/viola&jones/file_folder.txt"; //chemin à changer
 
-  /*Training training(file_folder);
+  Training training(file_folder);
 
-  training.generate_caracteristic_file();*/
+  training.generate_caracteristic_file();
 
   find_best();
 
