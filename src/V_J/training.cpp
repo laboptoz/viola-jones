@@ -449,7 +449,7 @@ void Training::simplify_true_caract()
                     caract_t caracteristics_true;
                     caract_t caracteristics_false;
                     int count_image;
-                    float sum,scare_sum,variance;
+                    float sum,scare_sum,variance_true, variance_false;
                     bool test;
                     int ID_true, ID_false, count_caract = 0;
 
@@ -465,7 +465,7 @@ void Training::simplify_true_caract()
                         in = get_rects(false_file, caracteristics_false);
 
                         if(nb_caract_in_file != 0)
-                            fscanf(false_file, "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance);
+                            fscanf(false_file, "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance_false);
 
                         do
                         {
@@ -473,16 +473,16 @@ void Training::simplify_true_caract()
                             out = get_rects(true_file, caracteristics_true);
                             if(out == 0)
                             {
-                                fscanf(true_file, "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance);
+                                fscanf(true_file, "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance_true);
                                 test =  compare_caracts(caracteristics_true, caracteristics_false, ID_true, ID_false);
                                 if(nb_caract_in_file == 0)
                                     test = 0;
 
-                                if(((!test) || (in != 0)) && (out == 0))
+                                if((out == 0) || (test == 1) || (variance_true <= variance_false))
                                 {
                                     fprintf(tmp_file,"<ID> %d <\\ID> ", ID_true);
                                     set_rects(tmp_file, caracteristics_true);
-                                    fprintf(tmp_file, "<D> %d %.2f %.2f %.4f <\\D>\n", count_image, sum, scare_sum, variance);
+                                    fprintf(tmp_file, "<D> %d %.2f %.2f %.4f <\\D>\n", count_image, sum, scare_sum, variance_true);
                                     count_caract++;
                                 }
                             }
