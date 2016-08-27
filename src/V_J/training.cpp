@@ -200,9 +200,9 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
                 scare_sum = (scare_sum*(count_image - 1) + result*result)/count_image;
                 mean = sum / (float)count_image;
                 variance = scare_sum - mean*mean;
-                variance = variance >= 0 ? sqrtf(variance) : 1.0f;
+                variance = variance >= 0 ? sqrtf(variance) : VARIANCE_ERROR;
 
-                if(((count_image <= MIN_IMAGE_TRUE) && (caracteristic_type == true_caract)) || ((count_image <= MIN_IMAGE_FALSE) && (caracteristic_type == false_caract)) || (((variance < VARIANCE_THREHOLD) && (variance > VARIANCE_ERROR))))
+                if(((count_image <= MIN_IMAGE_TRUE) && (caracteristic_type == true_caract)) || ((count_image <= MIN_IMAGE_FALSE) && (caracteristic_type == false_caract)) || (((variance < VARIANCE_THREHOLD) && (variance != VARIANCE_ERROR))))
                 {
                     fsetpos (file, &position1);
                     fprintf(file, " %03d %07.1f %07.1f %05.1f", count_image, sum, scare_sum, variance);

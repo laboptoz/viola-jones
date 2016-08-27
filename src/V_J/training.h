@@ -19,7 +19,7 @@ enum caracteristic_type_t
     false_caract
 };
 
-class Training : public Caracteristics
+class Training
 {
 public :
     Training(char* p_folder_file);
@@ -34,6 +34,7 @@ private :
 
     std::vector< std::vector<unsigned long int> > integral_image_0d;
     std::vector< std::vector<unsigned long int> > integral_image_45d;
+    std::vector<define_caract_t> all_caract_type;
 
     char m_true_file[100];
     char m_false_file[100];
@@ -46,6 +47,8 @@ private :
     void generate_caracteristics_from_file(char* file_name_new, char* file_name_base);
     void simplify_true_caract();
     void cpy_file(char* input, char* output);
+
+    void define_all_caract_type();
 };
 
 

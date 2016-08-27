@@ -5,7 +5,7 @@
 #define MIN_IMAGE_TRUE 95
 #define MIN_IMAGE_FALSE 42
 #define VARIANCE_THREHOLD 22
-#define VARIANCE_ERROR 0.
+#define VARIANCE_ERROR ERROR
 
 #define ERROR -1
 

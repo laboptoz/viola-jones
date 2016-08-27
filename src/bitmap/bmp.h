@@ -29,7 +29,7 @@ struct bmp_t
   std::vector< std::vector<unsigned long int> > image;
 };
 
-class bmp : public Caracteristics
+class bmp
 {
 public:
   bmp();

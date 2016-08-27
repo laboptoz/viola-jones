@@ -62,13 +62,12 @@ void draw_45d(std::vector<std::vector<unsigned long int> > &image, int x, int y,
 
 void find_best()
 {
-    char file_cara[] = "D:/projet/AI/viola&jones/file/tmp.txt";
+    char file_cara[] = "D:/projet/AI/viola&jones/file/caract_true.txt";
     unsigned long int i;
     int ID;
 
-    char file_in[] = "D:/projet/AI/viola&jones/file/true/004.bmp"; //chemin à changer
+    char file_in[] = "D:/projet/AI/viola&jones/file/true/094.bmp"; //chemin à changer
     char file_out[] = "D:/projet/AI/viola&jones/file/true/out.bmp"; //chemin à changer
-    Caracteristics caracteristic;
     caract_t caracteristics;
     bmp BMP;
     bmp_t bmps = BMP.read_bmp(file_in);
@@ -80,7 +79,7 @@ void find_best()
     FILE * file_input = fopen(file_cara, "r");
     if(file_input != NULL)
     {
-            unsigned int test = caracteristic.get_nb_caracteristics(file_input);
+            unsigned int test = get_nb_caracteristics(file_input);
 
             if(test != 0)
             {
@@ -88,10 +87,10 @@ void find_best()
 
                 do
                 {
-                    ID = caracteristic.get_id(file_input);
-                    i = caracteristic.get_rects(file_input, caracteristics);
+                    ID = get_id(file_input);
+                    i = get_rects(file_input, caracteristics);
                     fscanf(file_input, "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance);
-                    if(1/*((ID == 10) || (ID == 11))&& (variance <= 16.)*/)
+                    if(((ID == 5) || (ID == 5))&& (variance <= 17.5))
                     {
                         if(ID<10)
                             draw_0d(BMP.input_bmp.image,caracteristics.caract[0].x,caracteristics.caract[0].y,caracteristics.caract[0].length,caracteristics.caract[0].height);
@@ -110,7 +109,7 @@ void find_best()
         fclose(file_input);
     }
     else
-        printf("Error to open %s error code %d \n", file_in, errno);
+        printf("Error to open %s error code %d \n", file_cara, errno);
 
 }
 
@@ -122,7 +121,7 @@ int main ()
 
   training.generate_caracteristic_file();
 
-  find_best();
+  //find_best();
 
   return 0;
 }

@@ -4,6 +4,9 @@
 #include <vector>
 #include <iostream>
 #include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include "../config.h"
 
 #define FULL_SIZE 1.f
 #define HALF_SIZE 2.f
@@ -45,21 +48,113 @@ struct define_caract_t
     std::vector<define_rect_caract_t> caract;
 };
 
-class Caracteristics
+inline int get_id(FILE* file)
 {
-public :
-    Caracteristics();
-    ~Caracteristics();
+    char tag_id[] = "<ID>";
+    char temp[50];
+    int ID, test;
 
-    std::vector<define_caract_t> all_caract_type;
+    do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_id)) && (test == 1));
+    if(test != 1)
+        return ERROR;
 
-    int get_id(FILE* file);
-    int get_rects(FILE* file, caract_t &caract);
-    void set_rects(FILE* file, caract_t &caract);
-    void set_nb_caract(FILE* file, int nb_caract);
-    bool compare_caracts(caract_t caract1, caract_t caract2, int ID_1, int ID_2);
-    unsigned int get_nb_caracteristics(FILE* file);
-    void define_all_caract_type();
-};
+    test = fscanf(file,"%d",&ID);
+    if(test != 1)
+        return ERROR;
+    else
+        return ID;
+}
+
+inline int get_rects(FILE* file, caract_t &caract)
+{
+        char tag_rect[] = "<R>";
+        char tag_rect_end[] = "<\\R>";
+        char temp[50];
+        caract.nb_rect = 0;
+        caract.caract.clear();
+
+        rect_t rect;
+        int test;
+
+        do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_rect)) && (test == 1));
+        if(test != 1)
+            return ERROR;
+
+        do
+        {
+            caract.nb_rect ++;
+            caract.caract.resize(caract.nb_rect);
+            test = fscanf(file, "%d %d %d %d %d", &rect.x, &rect.y, &rect.length, &rect.height, &rect.wieght);
+            if(test == 5)
+            {
+                caract.caract[caract.nb_rect - 1] = rect;
+                do{fscanf(file,"%s",temp);}while(strcmp(temp,tag_rect_end));
+                fscanf(file,"%s",temp);
+            }
+            else
+                printf("error !!\n\n");
+        }
+        while((!strcmp(temp,tag_rect)) && (test == 5));
+    return 0;
+}
+
+inline void set_rects(FILE* file, caract_t &caract)
+{
+        register unsigned int i;
+        for(i = 0; i < caract.nb_rect; i++)
+        {
+            fprintf(file, "<R> %d %d %d %d %d <\\R> ", caract.caract[i].x, caract.caract[i].y, caract.caract[i].length,caract.caract[i].height, caract.caract[i].wieght);
+        }
+}
+
+inline void set_nb_caract(FILE* file, int nb_caract)
+{
+    char tag_car[] = "<CAR>";
+    char temp[50];
+    int test;
+
+    do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_car)) && (test == 1));
+
+    fprintf(file, " %d", nb_caract);
+}
+
+inline bool compare_caracts(caract_t caract1, caract_t caract2, int ID_1, int ID_2)
+{
+    bool result = true;
+
+    if(ID_1 == ID_2)
+    {
+        if(caract1.nb_rect == caract2.nb_rect)
+        {
+            register unsigned int i;
+            for(i = 0; i < caract1.nb_rect; i++)
+            {
+                result = result &&
+                        (caract1.caract[i].x == caract2.caract[i].x) &&
+                        (caract1.caract[i].y == caract2.caract[i].y) &&
+                        (caract1.caract[i].length == caract2.caract[i].length) &&
+                        (caract1.caract[i].height == caract2.caract[i].height) &&
+                        (caract1.caract[i].wieght == caract2.caract[i].wieght);
+            }
+            return result;
+        }
+        else
+            return ERROR;
+    }
+    else
+        return ERROR;
+}
+
+inline unsigned int get_nb_caracteristics(FILE* file)
+{
+    fseek(file, 0, 0);
+    char tag_nb_caract[] = "<CAR>";
+    char temp[30];
+    unsigned int test;
+    do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_nb_caract)) && (test == 1));
+    fscanf(file,"%u",&test);
+
+    return test;
+}
 
 #endif // CARACT_H_INCLUDED
