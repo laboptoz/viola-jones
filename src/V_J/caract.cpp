@@ -1,4 +1,5 @@
 #include "caract.h"
+#include "../config.h"
 #include <cstdio>
 #include <cstdlib>
 
@@ -20,11 +21,11 @@ int Caracteristics::get_id(FILE* file)
 
     do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_id)) && (test == 1));
     if(test != 1)
-        return -1;
+        return ERROR;
 
     test = fscanf(file,"%d",&ID);
     if(test != 1)
-        return -1;
+        return ERROR;
     else
         return ID;
 }
@@ -42,7 +43,7 @@ int Caracteristics::get_rects(FILE* file, caract_t &caract)
 
         do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_rect)) && (test == 1));
         if(test != 1)
-            return -1;
+            return ERROR;
 
         do
         {
@@ -71,6 +72,17 @@ void Caracteristics::set_rects(FILE* file, caract_t &caract)
         }
 }
 
+void Caracteristics::set_nb_caract(FILE* file, int nb_caract)
+{
+    char tag_car[] = "<CAR>";
+    char temp[50];
+    int test;
+
+    do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_car)) && (test == 1));
+
+    fprintf(file, " %d", nb_caract);
+}
+
 bool Caracteristics::compare_caracts(caract_t caract1, caract_t caract2, int ID_1, int ID_2)
 {
     bool result = true;
@@ -92,10 +104,10 @@ bool Caracteristics::compare_caracts(caract_t caract1, caract_t caract2, int ID_
             return result;
         }
         else
-            return -1;
+            return ERROR;
     }
     else
-        return -1;
+        return ERROR;
 }
 
 unsigned int Caracteristics::get_nb_caracteristics(FILE* file)

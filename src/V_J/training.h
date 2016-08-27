@@ -31,7 +31,6 @@ public :
 
 private :
     FILE* m_folder_file;
-    enum last_file_used_t m_last_file_used;
 
     std::vector< std::vector<unsigned long int> > integral_image_0d;
     std::vector< std::vector<unsigned long int> > integral_image_45d;
@@ -46,7 +45,7 @@ private :
     void generate_caracteristics_45d(FILE* file, int x, int y, int length, int height, unsigned int &nb_caracts);
     void generate_caracteristics_from_file(char* file_name_new, char* file_name_base);
     void simplify_true_caract();
-    void cpy_temp(caracteristic_type_t caracteristic_type);
+    void cpy_file(char* input, char* output);
 };
 
 
