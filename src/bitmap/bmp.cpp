@@ -145,7 +145,7 @@ float bmp::get_sum_0d(std::vector<std::vector<unsigned long int> > &image, carac
         result += (image[x_min][y_min] - image[x_max][y_min] - image[x_min][y_max] + image[x_max][y_max])*p_caract.caract[i].wieght;
     }
     unsigned long int nb_pixel = p_caract.caract[0].length*p_caract.caract[0].height*factor*factor;
-    return((result-image_mean*nb_pixel)/ecart_type/(float)nb_pixel);
+    return((result-image_mean*nb_pixel)/(ecart_type*nb_pixel));
 }
 
 float bmp::get_sum_45d(std::vector<std::vector<unsigned long int> > &image, caract_t &p_caract)
