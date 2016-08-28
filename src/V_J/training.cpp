@@ -46,6 +46,8 @@ using std::string;
 
 void Training::generate_caracteristic_file()
 {
+    clean_file(m_weak_file);
+
     printf("generate %s\n", m_true_file);
     generate_caracteristics(m_true_file);
     traine_true_image();
@@ -206,48 +208,72 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
     FILE * file = fopen(file_txt, "r+");
     if(file != NULL)
     {
-        /* internal variable */
-        int count_image, ID, error;
-        float sum, scare_sum, result;
-        fpos_t position1, position2;
-        caract_t caracteristics;
-
-        /* go to begining of file */
-        rewind(file);
-        fseek(file, 0, 0);
-
-        do
+        FILE* weak = fopen(m_weak_file, "a");
+        if(weak != NULL)
         {
-            ID = get_id(file);
-            error = get_rects(file, caracteristics);
+            /* internal variable */
+            int count_image, ID, error;
+            float sum, scare_sum, result;
+            fpos_t position1, position2;
+            caract_t caracteristics;
 
-            if(error != ERROR)
+            /* go to begining of file */
+            rewind(file);
+            fseek(file, 0, 0);
+
+
+            if(caracteristic_type == true_caract)
+                fprintf(weak,"<P> %d ", TRUE);
+            else
+                fprintf(weak,"<P> %d ", FALSE);
+
+            do
             {
-                fgetpos (file, &position1);
-                fscanf(file, "%d %f %f", &count_image, &sum, &scare_sum);
-                fgetpos (file, &position2);
-                count_image ++;
+                ID = get_id(file);
+                error = get_rects(file, caracteristics);
 
-                if(ID < 10)
-                    result = BMP.get_sum_0d(integral_image_0d, caracteristics);
-                else
-                    result = BMP.get_sum_45d(integral_image_45d, caracteristics);
+                if(error != ERROR)
+                {
+                    fgetpos (file, &position1);
+                    fscanf(file, "%d %f %f", &count_image, &sum, &scare_sum);
+                    fgetpos (file, &position2);
+                    count_image ++;
 
-                result = result*10000;
-                sum += result;
-                scare_sum = (scare_sum*(count_image - 1) + result*result)/count_image;
+                    if(ID < 10)
+                        result = BMP.get_sum_0d(integral_image_0d, caracteristics);
+                    else
+                        result = BMP.get_sum_45d(integral_image_45d, caracteristics);
 
-                fsetpos (file, &position1);
-                fprintf(file, " %03d %07.1f %07.1f", count_image, sum, scare_sum);
-                fsetpos (file, &position2);
+                    result = result*10000;
+                    sum += result;
+                    scare_sum = (scare_sum*(count_image - 1) + result*result)/count_image;
+
+                    fsetpos (file, &position1);
+                    fprintf(file, " %03d %07.1f %07.1f", count_image, sum, scare_sum);
+                    fsetpos (file, &position2);
+
+                    fprintf(weak,"%05d ",(int)result);
+                }
             }
+            while(error != ERROR);
+            fprintf(weak,"\n");
+            fclose(weak);
         }
-        while(error != ERROR);
+        else
+            printf("Error to open %s error code %d \n", m_weak_file, errno);
 
         fclose(file);
     }
     else
         printf("Error to open %s error code %d \n", file_txt, errno);
+}
+
+void Training::clean_file(char* file_name)
+{
+    errno = 0;
+    FILE* file = fopen(file_name, "w");
+    if(file == NULL)
+        printf("Error to open %s error code %d \n", file_name, errno);
 }
 
 void Training::generate_caracteristics(char* file_name)

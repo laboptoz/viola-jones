@@ -42,6 +42,7 @@ private :
 
     void compute_variances(char* file_name);
     void set_image_caract(char* file_name, caracteristic_type_t caracteristic_type);
+    void clean_file(char* file_name);
     void generate_caracteristics(char* file_name);
     void generate_caracteristics_0d(FILE* file, int x, int y, int length, int height, unsigned int &nb_caracts);
     void generate_caracteristics_45d(FILE* file, int x, int y, int length, int height, unsigned int &nb_caracts);
