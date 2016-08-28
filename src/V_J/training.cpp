@@ -34,7 +34,7 @@ Training::Training(char* p_folder_file)
 
     while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
     strcpy(tmp, folder);
-    strcpy(m_tmp_file, strcat(tmp,file));
+    strcpy(m_weak_file, strcat(tmp,file));
 }
 
 Training::~Training()
@@ -54,8 +54,11 @@ void Training::generate_caracteristic_file()
     generate_caracteristics(m_false_file);
     traine_false_image();
 
-    printf("\nsimplify caract in %s \n", m_tmp_file);
-    simplify_true_caract();
+    printf("\ncompute variances : \n");
+    compute_variances(m_true_file);
+    printf("\t%s done\n", m_true_file);
+    compute_variances(m_false_file);
+    printf("\t%s done\n", m_false_file);
 }
 
 void Training::traine_true_image()
@@ -143,6 +146,42 @@ void Training::traine_false_image()
     while(strcmp(file_image,end_of_false_tag));
 }
 
+void Training::compute_variances(char* file_name)
+{
+    errno = 0;
+    FILE* file = fopen(file_name, "r+");
+
+    if(file != NULL)
+    {
+        int eof, count_image;
+        float sum, scare_sum, variance, mean;
+        fpos_t position1, position2;
+
+        rewind(file);
+        do
+        {
+            eof = go_to_data(file);
+            if(eof != ERROR)
+            {
+                fgetpos (file, &position1);
+                fscanf(file, "%d %f %f %f <\\D>", &count_image, &sum, &scare_sum, &variance);
+                fgetpos (file, &position2);
+
+                mean = sum / (float)count_image;
+                variance = scare_sum - mean*mean;
+                variance = variance >= 0 ? sqrtf(variance) : VARIANCE_ERROR;
+
+                fsetpos (file, &position1);
+                fprintf(file, " %03d %07.1f %07.1f %05.1f", count_image, sum, scare_sum, variance);
+                fsetpos (file, &position2);
+            }
+        }
+        while(eof != ERROR);
+    }
+    else
+        printf("Error to open %s error code %d \n", file_name, errno);
+}
+
 void Training::set_image_caract(char* image_name, caracteristic_type_t caracteristic_type)
 {
     /* files names and folders */
@@ -155,7 +194,7 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
     BMP.compute_integral_image_45d(bmps.image, integral_image_45d);
 
     #ifdef LOG
-    printf("%5d/%5d pxl : ", (int)bmps.width, (int)bmps.height);
+    printf("%5d/%5d pxl\n", (int)bmps.width, (int)bmps.height);
     #endif
 
     if(caracteristic_type == true_caract)
@@ -165,12 +204,11 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
 
     errno = 0;
     FILE * file = fopen(file_txt, "r+");
-
     if(file != NULL)
     {
         /* internal variable */
-        int count_image, ID, error, nb_caract = 0;
-        float variance, sum, scare_sum, result, mean;
+        int count_image, ID, error;
+        float sum, scare_sum, result;
         fpos_t position1, position2;
         caract_t caracteristics;
 
@@ -186,7 +224,7 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
             if(error != ERROR)
             {
                 fgetpos (file, &position1);
-                fscanf(file, "%d %f %f %f <\\D>", &count_image, &sum, &scare_sum, &variance);
+                fscanf(file, "%d %f %f", &count_image, &sum, &scare_sum);
                 fgetpos (file, &position2);
                 count_image ++;
 
@@ -198,25 +236,13 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
                 result = result*10000;
                 sum += result;
                 scare_sum = (scare_sum*(count_image - 1) + result*result)/count_image;
-                mean = sum / (float)count_image;
-                variance = scare_sum - mean*mean;
-                variance = variance >= 0 ? sqrtf(variance) : VARIANCE_ERROR;
 
-                if(((count_image <= MIN_IMAGE_TRUE) && (caracteristic_type == true_caract)) || ((count_image <= MIN_IMAGE_FALSE) && (caracteristic_type == false_caract)) || (((variance < VARIANCE_THREHOLD) && (variance != VARIANCE_ERROR))))
-                {
-                    fsetpos (file, &position1);
-                    fprintf(file, " %03d %07.1f %07.1f %05.1f", count_image, sum, scare_sum, variance);
-                    fsetpos (file, &position2);
-                    nb_caract++;
-                }
+                fsetpos (file, &position1);
+                fprintf(file, " %03d %07.1f %07.1f", count_image, sum, scare_sum);
+                fsetpos (file, &position2);
             }
         }
         while(error != ERROR);
-        #ifdef LOG
-        printf(" %d caracteristics\n", nb_caract);
-        #endif
-        fsetpos (file, &position1);
-        set_nb_caract(file, nb_caract);
 
         fclose(file);
     }
@@ -248,8 +274,8 @@ void Training::generate_caracteristics(char* file_name)
                     }
                 }
             }
-            fprintf(file, "<CAR> %d <\\CAR>", nb_caracts);
         }
+        printf("%d characteristics generated\n", nb_caracts);
         fclose(file);
     }
     else
@@ -289,7 +315,7 @@ void Training::generate_caracteristics_0d(FILE* file, int x, int y, int length, 
             fprintf(file, "<\\R> ");
         }
         fprintf(file, "<D> ");
-        fprintf(file, "%03d %07.1f %07.1f %05.1f", 0, 0., 0., 0.);//count image, sum, scare_sum, variance
+        fprintf(file, "%03d %07.1f %07.1f %05.3f", 0, 0., 0., 0.);//count image, sum, scare_sum, variance
         fprintf(file, " <\\D> \n");
 
         nb_caracts++;
@@ -344,7 +370,7 @@ void Training::generate_caracteristics_45d(FILE* file, int x, int y, int length,
                 fprintf(file, "<\\R> ");
             }
             fprintf(file, "<D> ");
-            fprintf(file, "%03d %07.1f %07.1f %05.1f", 0, 0., 0., 0.);//count image, sum, scare_sum, variance
+            fprintf(file, "%03d %07.1f %07.1f %05.3f", 0, 0., 0., 0.);//count image, sum, scare_sum, variance
             fprintf(file, " <\\D> \n");
 
             nb_caracts++;
@@ -379,7 +405,7 @@ void Training::generate_caracteristics_from_file(char* file_name_new, char* file
                     fscanf(base_file, "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance);
                     fprintf(new_file, "<ID> %d <\\ID> ", ID);
                     set_rects(new_file, caracteristics);
-                    fprintf(new_file, "<D> %03d %07.1f %07.1f %05.1f <\\D> \n", 0, 0.f, 0.f, 0.f);
+                    fprintf(new_file, "<D> %03d %07.1f %07.1f %05.3f <\\D> \n", 0, 0.f, 0.f, 0.f);
                     nb_caracts++;
                 }
             }
@@ -399,7 +425,7 @@ void Training::simplify_true_caract()
 {
     FILE * true_file = fopen(m_true_file, "r");
     FILE * false_file = fopen(m_false_file, "r");
-    FILE * tmp_file = fopen(m_tmp_file, "w");
+    FILE * tmp_file = fopen(m_weak_file, "w");
 
     if(tmp_file != NULL)
     {
@@ -447,7 +473,7 @@ void Training::simplify_true_caract()
                                 {
                                     fprintf(tmp_file,"<ID> %d <\\ID> ", ID_true);
                                     set_rects(tmp_file, caracteristics_true);
-                                    fprintf(tmp_file, "<D> %03d %07.1f %07.1f %05.1f <\\D>\n", count_image, sum, scare_sum, variance_true);
+                                    fprintf(tmp_file, "<D> %03d %07.1f %07.1f %05.3f <\\D>\n", count_image, sum, scare_sum, variance_true);
                                     count_caract++;
                                 }
                             }

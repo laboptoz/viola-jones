@@ -125,11 +125,8 @@ void bmp::compute_integral_image_45d(std::vector<std::vector<unsigned long int> 
 
 float bmp::get_sum_0d(std::vector<std::vector<unsigned long int> > &image, caract_t &p_caract)
 {
-    int mini = std::min(image.size(), image[0].size());
-    float factor = (float)(mini - 1) / INIT_SIZE;
-    std::vector<long int> results;
-    results.resize(p_caract.nb_rect);
-    float result = 0.f;
+    float factor = (float)(std::min(image.size(), image[0].size()) - 1) / INIT_SIZE;
+    long int result = 0;
 
     int x_min;
     int y_min;
@@ -145,9 +142,7 @@ float bmp::get_sum_0d(std::vector<std::vector<unsigned long int> > &image, carac
         x_max = x_min + (p_caract.caract[i].length)*factor;
         y_max = y_min + (p_caract.caract[i].height)*factor;
 
-        results[i] = image[x_min][y_min] - image[x_max][y_min];
-        results[i] += -image[x_min][y_max] + image[x_max][y_max];
-        result += results[i]*p_caract.caract[i].wieght;
+        result += (image[x_min][y_min] - image[x_max][y_min] - image[x_min][y_max] + image[x_max][y_max])*p_caract.caract[i].wieght;
     }
     unsigned long int nb_pixel = p_caract.caract[0].length*p_caract.caract[0].height*factor*factor;
     return((result-image_mean*nb_pixel)/ecart_type/(float)nb_pixel);
@@ -159,20 +154,15 @@ float bmp::get_sum_45d(std::vector<std::vector<unsigned long int> > &image, cara
        1    3
          4
     */
-    int mini = std::min(image.size(), image[0].size());
-    float factor = (float)(mini - 1) / INIT_SIZE;
-    std::vector<long int> results;
-    results.resize(p_caract.nb_rect);
-    float result = 0.f;
+    float factor = (float)(std::min(image.size(), image[0].size()) - 1) / INIT_SIZE;
+    long int result = 0;
 
     int x1, y1;
     int x2, y2;
     int x3, y3;
     int x4, y4;
 
-    int height_1_factor;
-
-    register int i;
+    register int i, height_1_factor;
 
     for(i = p_caract.nb_rect - 1; i >= 0; i--)
     {
@@ -190,12 +180,10 @@ float bmp::get_sum_45d(std::vector<std::vector<unsigned long int> > &image, cara
         x4 = x1 + height_1_factor;
         y4 = y1 + height_1_factor;
 
-        results[i] = image[x3][y3] - image[x2][y2];
-        results[i] += -image[x4][y4] + image[x1][y1];
-        result += results[i]*p_caract.caract[i].wieght;
+        result += (image[x3][y3] - image[x2][y2] -image[x4][y4] + image[x1][y1])*p_caract.caract[i].wieght;
     }
     unsigned long int nb_pixel = ((float)p_caract.caract[0].length*(float)p_caract.caract[0].height + (float)(p_caract.caract[0].length-1)*(float)(p_caract.caract[0].height -1))*factor*factor;
-    return((result-image_mean*nb_pixel)/ecart_type/(float)nb_pixel);
+    return((result-image_mean*nb_pixel)/(ecart_type*nb_pixel));
 }
 
 /*

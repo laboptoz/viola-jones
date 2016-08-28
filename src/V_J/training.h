@@ -38,8 +38,9 @@ private :
 
     char m_true_file[100];
     char m_false_file[100];
-    char m_tmp_file[100];
+    char m_weak_file[100];
 
+    void compute_variances(char* file_name);
     void set_image_caract(char* file_name, caracteristic_type_t caracteristic_type);
     void generate_caracteristics(char* file_name);
     void generate_caracteristics_0d(FILE* file, int x, int y, int length, int height, unsigned int &nb_caracts);
