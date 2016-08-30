@@ -39,6 +39,7 @@ private :
     char m_true_file[100];
     char m_false_file[100];
     char m_weak_file[100];
+    char m_threshold_file[100];
 
     void compute_variances(char* file_name);
     void set_image_caract(char* file_name, caracteristic_type_t caracteristic_type);
@@ -47,6 +48,7 @@ private :
     void generate_caracteristics_0d(FILE* file, int x, int y, int length, int height, unsigned int &nb_caracts);
     void generate_caracteristics_45d(FILE* file, int x, int y, int length, int height, unsigned int &nb_caracts);
     void generate_caracteristics_from_file(char* file_name_new, char* file_name_base);
+    void generate_thresholds();
     void simplify_true_caract();
     void cpy_file(char* input, char* output);
 

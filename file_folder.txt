@@ -2,7 +2,8 @@
 	<FOLDER> D:\projet\AI\viola&jones\file\ <\FOLDER>
 	<FILE> caract_true.txt <\FILE>
 	<FILE> caract_false.txt <\FILE>
-	<FILE> tmp.txt <\FILE>
+	<FILE> weak.txt <\FILE>
+	<FILE> threshold.txt <\FILE>
 <\CARACT>
 <IMG>
 	<TRUE>
@@ -86,6 +87,23 @@
 		<FILE> 076.bmp <\FILE>
 		<FILE> 077.bmp <\FILE>
 		<FILE> 078.bmp <\FILE>
+		<FILE> 079.bmp <\FILE>
+		<FILE> 080.bmp <\FILE>
+		<FILE> 081.bmp <\FILE>
+		<FILE> 082.bmp <\FILE>
+		<FILE> 083.bmp <\FILE>
+		<FILE> 084.bmp <\FILE>
+		<FILE> 085.bmp <\FILE>
+		<FILE> 086.bmp <\FILE>
+		<FILE> 087.bmp <\FILE>
+		<FILE> 088.bmp <\FILE>
+		<FILE> 089.bmp <\FILE>
+		<FILE> 090.bmp <\FILE>
+		<FILE> 091.bmp <\FILE>
+		<FILE> 092.bmp <\FILE>
+		<FILE> 093.bmp <\FILE>
+		<FILE> 094.bmp <\FILE>
+		<FILE> 095.bmp <\FILE>
 	<\TRUE>
 	<FALSE>
 		<FOLDER> D:\projet\AI\viola&jones\file\false\ <\FOLDER>

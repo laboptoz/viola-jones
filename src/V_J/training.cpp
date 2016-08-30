@@ -35,6 +35,10 @@ Training::Training(char* p_folder_file)
     while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
     strcpy(tmp, folder);
     strcpy(m_weak_file, strcat(tmp,file));
+
+    while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
+    strcpy(tmp, folder);
+    strcpy(m_threshold_file, strcat(tmp,file));
 }
 
 Training::~Training()
@@ -61,6 +65,9 @@ void Training::generate_caracteristic_file()
     printf("\t%s done\n", m_true_file);
     compute_variances(m_false_file);
     printf("\t%s done\n", m_false_file);
+
+    printf("\nGenerate thresholds\n");
+    generate_thresholds();
 }
 
 void Training::traine_true_image()
@@ -452,6 +459,62 @@ void Training::generate_caracteristics_from_file(char* file_name_new, char* file
     }
     else
         printf("Error to open %s error code %d \n", file_name_new, errno);
+}
+
+void Training::generate_thresholds()
+{
+    errno = 0;
+    FILE* threshold_file = fopen(m_threshold_file, "w");
+    if(threshold_file != NULL)
+    {
+        FILE* true_file = fopen(m_true_file, "r");
+        if(true_file != NULL)
+        {
+            FILE* false_file = fopen(m_false_file, "r");
+            if(false_file != NULL)
+            {
+                fseek(true_file, 0, SEEK_SET);
+                fseek(false_file,0, SEEK_SET);
+
+                char data_end_true, data_end_false;
+                float min1, min2, max1, max2, threshold;
+                int tmp;
+
+                do
+                {
+                    data_end_true = go_to_data(true_file);
+                    data_end_false = go_to_data(false_file);
+
+                    if((data_end_true != ERROR) || (data_end_false != ERROR))
+                    {
+                        fscanf(true_file, "%d %f %f", &tmp, &min1, &max1);
+                        fscanf(false_file, "%d %f %f", &tmp, &min2, &max2);
+
+                        if(min2 < min1)
+                            min1 = min2;
+                        if(max2 > max1)
+                            max1 = max2;
+
+                        threshold = min1 + (max1 - min1)/2.f;
+                        fprintf(threshold_file,"%06.1f %03d %03d %03d %03d\n",threshold,0,0,0,0);
+                    }
+                }
+                while((data_end_true != ERROR) || (data_end_false != ERROR));
+
+                fclose(false_file);
+            }
+            else
+                printf("Error to open %s error code %d \n", m_false_file, errno);
+
+            fclose(true_file);
+        }
+        else
+            printf("Error to open %s error code %d \n", m_true_file, errno);
+
+        fclose(threshold_file);
+    }
+    else
+        printf("Error to open %s error code %d \n", m_threshold_file, errno);
 }
 
 void Training::simplify_true_caract()
