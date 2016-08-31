@@ -26,11 +26,11 @@ Training::Training(char* p_folder_file)
 
     while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
     strcpy(tmp, folder);
-    strcpy(m_true_file, strcat(tmp,file));
+    m_true_file.set_name(strcat(tmp,file));
 
     while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
     strcpy(tmp, folder);
-    strcpy(m_false_file, strcat(tmp,file));
+    m_false_file.set_name(strcat(tmp,file));
 
     while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
     strcpy(tmp, folder);
@@ -50,21 +50,27 @@ using std::string;
 
 void Training::generate_caracteristic_file()
 {
+    char names[100];
+
     clean_file(m_weak_file);
 
-    printf("generate %s\n", m_true_file);
-    generate_caracteristics(m_true_file);
+    m_true_file.get_name(names);
+    printf("generate %s\n", names);
+    generate_caracteristics(names);
     traine_true_image();
 
-    printf("\ngenerate %s \n", m_false_file);
-    generate_caracteristics(m_false_file);
+    m_false_file.get_name(names);
+    printf("\ngenerate %s \n", names);
+    generate_caracteristics(names);
     traine_false_image();
 
     printf("\ncompute variances : \n");
-    compute_variances(m_true_file);
-    printf("\t%s done\n", m_true_file);
-    compute_variances(m_false_file);
-    printf("\t%s done\n", m_false_file);
+    m_true_file.compute_variances();
+    m_true_file.get_name(names);
+    printf("\t%s done\n", names);
+    m_false_file.compute_variances();
+    m_false_file.get_name(names);
+    printf("\t%s done\n", names);
 
     printf("\nGenerate thresholds\n");
     generate_thresholds();
@@ -158,47 +164,8 @@ void Training::traine_false_image()
     while(strcmp(file_image,end_of_false_tag));
 }
 
-void Training::compute_variances(char* file_name)
-{
-    errno = 0;
-    FILE* file = fopen(file_name, "r+");
-
-    if(file != NULL)
-    {
-        int eof, count_image;
-        float sum, scare_sum, variance, mean, mini, maxi;
-        fpos_t position1, position2;
-
-        rewind(file);
-        do
-        {
-            eof = go_to_data(file);
-            if(eof != ERROR)
-            {
-                fgetpos (file, &position1);
-                fscanf(file, "%d %f %f %f %f %f <\\D>", &count_image, &mini, &maxi, &sum, &scare_sum, &variance);
-                fgetpos (file, &position2);
-
-                mean = sum / (float)count_image;
-                variance = scare_sum - mean*mean;
-                variance = variance >= 0 ? sqrtf(variance) : VARIANCE_ERROR;
-
-                fsetpos (file, &position1);
-                fprintf(file, " %03d %07.1f %07.1f %07.1f %07.1f %05.1f", count_image, mini, maxi, sum, scare_sum, variance);
-                fsetpos (file, &position2);
-            }
-        }
-        while(eof != ERROR);
-    }
-    else
-        printf("Error to open %s error code %d \n", file_name, errno);
-}
-
 void Training::set_image_caract(char* image_name, caracteristic_type_t caracteristic_type)
 {
-    /* files names and folders */
-    char file_txt[100];
-
     /* compute image */
     bmp BMP;
     bmp_t bmps = BMP.read_bmp(image_name);
@@ -209,14 +176,15 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
     printf("%5d/%5d pxl\n", (int)bmps.width, (int)bmps.height);
     #endif
 
-    if(caracteristic_type == true_caract)
-        strcpy(file_txt, m_true_file);
-    else
-        strcpy(file_txt, m_false_file);
+    File_caract file_caract;
 
-    errno = 0;
-    FILE * file = fopen(file_txt, "r+");
-    if(file != NULL)
+    if(caracteristic_type == true_caract)
+        file_caract = m_true_file;
+    else
+        file_caract = m_false_file;
+
+    char mode[] = "r+";
+    if(file_caract.file_open(mode) != ERROR)
     {
         FILE* weak = fopen(m_weak_file, "a");
         if(weak != NULL)
@@ -228,8 +196,8 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
             caract_t caracteristics;
 
             /* go to begining of file */
-            rewind(file);
-            fseek(file, 0, SEEK_SET);
+            rewind(file_caract.get_file_id());
+            file_caract.go_to_origin();
 
             if(caracteristic_type == true_caract)
                 fprintf(weak,"<P> %d ", TRUE);
@@ -238,14 +206,14 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
 
             do
             {
-                ID = get_id(file);
-                error = get_rects(file, caracteristics);
+                ID = file_caract.get_id();
+                error = file_caract.get_rects(caracteristics);
 
                 if(error != ERROR)
                 {
-                    fgetpos (file, &position1);
-                    fscanf(file, "%d %f %f %f %f", &count_image, &mini, &maxi, &sum, &scare_sum);
-                    fgetpos (file, &position2);
+                    fgetpos (file_caract.get_file_id(), &position1);
+                    fscanf(file_caract.get_file_id(), "%d %f %f %f %f", &count_image, &mini, &maxi, &sum, &scare_sum);
+                    fgetpos (file_caract.get_file_id(), &position2);
                     count_image ++;
 
                     if(ID < 10)
@@ -267,9 +235,9 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
                             maxi = result;
                     }
 
-                    fsetpos (file, &position1);
-                    fprintf(file, " %03d %07.1f %07.1f %07.1f %07.1f", count_image, mini, maxi, sum, scare_sum);
-                    fsetpos (file, &position2);
+                    fsetpos (file_caract.get_file_id(), &position1);
+                    fprintf(file_caract.get_file_id(), " %03d %07.1f %07.1f %07.1f %07.1f", count_image, mini, maxi, sum, scare_sum);
+                    fsetpos (file_caract.get_file_id(), &position2);
 
                     fprintf(weak,"%04d ",(int)result);
                 }
@@ -281,10 +249,8 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
         else
             printf("Error to open %s error code %d \n", m_weak_file, errno);
 
-        fclose(file);
+        file_caract.file_close();
     }
-    else
-        printf("Error to open %s error code %d \n", file_txt, errno);
 }
 
 void Training::clean_file(char* file_name)
@@ -423,61 +389,19 @@ void Training::generate_caracteristics_45d(FILE* file, int x, int y, int length,
     }
 }
 
-void Training::generate_caracteristics_from_file(char* file_name_new, char* file_name_base)
-{
-    FILE * new_file = fopen(file_name_new, "w");
-    FILE * base_file = fopen(file_name_base, "r");
-
-    if(new_file != NULL)
-    {
-        fseek(new_file, 0, 0);
-        if(base_file != NULL)
-        {
-            int ID, i =0;
-            caract_t caracteristics;
-            unsigned int nb_caracts = 0;
-
-            fseek(base_file, 0, 0);
-
-            do
-            {
-                ID = get_id(base_file);
-                i = get_rects(base_file, caracteristics);
-
-                if(i == 0)
-                {
-                    fprintf(new_file, "<ID> %d <\\ID> ", ID);
-                    set_rects(new_file, caracteristics);
-                    fprintf(new_file, "<D> %03d %07.1f %07.1f %07.1f %07.1f %05.3f <\\D> \n", 0, 0.f, 0.f, 0.f, 0.f, 0.f);
-                    nb_caracts++;
-                }
-            }
-            while(i == 0);
-
-            fprintf(new_file, "<CAR> %d <\\CAR>", nb_caracts);
-
-            fclose(base_file);
-        }
-        fclose(new_file);
-    }
-    else
-        printf("Error to open %s error code %d \n", file_name_new, errno);
-}
-
 void Training::generate_thresholds()
 {
     errno = 0;
     FILE* threshold_file = fopen(m_threshold_file, "w");
     if(threshold_file != NULL)
     {
-        FILE* true_file = fopen(m_true_file, "r");
-        if(true_file != NULL)
+        char mode[] = "r";
+        if(m_true_file.file_open(mode) != ERROR)
         {
-            FILE* false_file = fopen(m_false_file, "r");
-            if(false_file != NULL)
+            if(m_false_file.file_open(mode) != ERROR)
             {
-                fseek(true_file, 0, SEEK_SET);
-                fseek(false_file,0, SEEK_SET);
+                m_true_file.go_to_origin();
+                m_false_file.go_to_origin();
 
                 char data_end_true, data_end_false;
                 float min1, min2, max1, max2, threshold;
@@ -485,13 +409,13 @@ void Training::generate_thresholds()
 
                 do
                 {
-                    data_end_true = go_to_data(true_file);
-                    data_end_false = go_to_data(false_file);
+                    data_end_true = m_true_file.go_to_data();
+                    data_end_false = m_false_file.go_to_data();
 
                     if((data_end_true != ERROR) || (data_end_false != ERROR))
                     {
-                        fscanf(true_file, "%d %f %f", &tmp, &min1, &max1);
-                        fscanf(false_file, "%d %f %f", &tmp, &min2, &max2);
+                        fscanf(m_true_file.get_file_id(), "%d %f %f", &tmp, &min1, &max1);
+                        fscanf(m_false_file.get_file_id(), "%d %f %f", &tmp, &min2, &max2);
 
                         if(min2 < min1)
                             min1 = min2;
@@ -504,16 +428,10 @@ void Training::generate_thresholds()
                 }
                 while((data_end_true != ERROR) || (data_end_false != ERROR));
 
-                fclose(false_file);
+                m_false_file.file_close();
             }
-            else
-                printf("Error to open %s error code %d \n", m_false_file, errno);
-
-            fclose(true_file);
+            m_true_file.file_close();
         }
-        else
-            printf("Error to open %s error code %d \n", m_true_file, errno);
-
         fclose(threshold_file);
     }
     else
@@ -617,112 +535,4 @@ void Training::compute_errors()
     }
     else
         printf("Error to open %s error code %d \n", m_threshold_file, errno);
-}
-
-void Training::simplify_true_caract()
-{
-    FILE * true_file = fopen(m_true_file, "r");
-    FILE * false_file = fopen(m_false_file, "r");
-    FILE * tmp_file = fopen(m_weak_file, "w");
-
-    if(tmp_file != NULL)
-    {
-        fseek(tmp_file, 0, 0);
-        if(true_file != NULL)
-        {
-            int nb_caract_in_file = get_nb_caracteristics(true_file);
-            if(nb_caract_in_file != 0)
-            {
-                fseek(true_file, 0, 0);
-                if(false_file != NULL)
-                {
-                    caract_t caracteristics_true;
-                    caract_t caracteristics_false;
-                    int count_image;
-                    float sum,scare_sum,variance_true, variance_false, mini, maxi;
-                    bool test;
-                    int ID_true, ID_false, count_caract = 0;
-
-                    nb_caract_in_file = get_nb_caracteristics(false_file);
-
-                    count_caract = 0;
-                    fseek(false_file, 0, 0);
-                    int out = 0;
-                    do
-                    {
-                        ID_false = get_id(false_file);
-                        get_rects(false_file, caracteristics_false);
-
-                        if(nb_caract_in_file != 0)
-                            fscanf(false_file, "%d %f %f %f %f %f <\\D> ", &count_image, &mini, &maxi, &sum, &scare_sum, &variance_false);
-
-                        do
-                        {
-                            ID_true = get_id(true_file);
-                            out = get_rects(true_file, caracteristics_true);
-                            if(out == 0)
-                            {
-                                fscanf(true_file, "%d %f %f %f %f %f <\\D> ", &count_image, &mini, &maxi, &sum, &scare_sum, &variance_true);
-                                test =  compare_caracts(caracteristics_true, caracteristics_false, ID_true, ID_false);
-                                if(nb_caract_in_file == 0)
-                                    test = 0;
-
-                                if((out == 0) || (test == 1) || (variance_true <= variance_false))
-                                {
-                                    fprintf(tmp_file,"<ID> %d <\\ID> ", ID_true);
-                                    set_rects(tmp_file, caracteristics_true);
-                                    fprintf(tmp_file, "<D> %03d %07.1f %07.1f %07.1f %07.1f %05.3f <\\D>\n", count_image, mini, maxi, sum, scare_sum, variance_true);
-                                    count_caract++;
-                                }
-                            }
-                        }
-                        while((!test) && (out == 0));
-                    }
-                    while(out == 0);
-                    fprintf(tmp_file, "<CAR> %d <\\CAR>", count_caract);
-                    #ifdef LOG
-                    printf("%d caracteristics found\n",count_caract);
-                    #endif
-
-                    fclose(false_file);
-                }
-            }
-            else
-                fprintf(tmp_file, "<CAR> %d <\\CAR>", 0);
-            fclose(true_file);
-        }
-        else
-            printf("Error to open %s error code %d \n", m_false_file, errno);
-        fclose(tmp_file);
-    }
-}
-
-void Training::cpy_file(char* input, char* output)
-{
-    errno = 0;
-    FILE * FILE_input = fopen(input, "r");
-    FILE * FILE_output = fopen(output, "w");
-
-    if(FILE_input != NULL)
-    {
-        fseek(FILE_input, 0, 0);
-        if(FILE_output != NULL)
-        {
-            fseek(FILE_output, 0, 0);
-            register char car;
-            do
-            {
-                car = fgetc(FILE_input);
-                if(car != EOF)
-                    fputc(car, FILE_output);
-            }
-            while (car != EOF);
-            fclose(FILE_output);
-        }
-        else
-            printf("Error to open %s error code %d \n", output, errno);
-        fclose(FILE_input);
-    }
-    else
-        printf("Error to open %s error code %d \n", input, errno);
 }

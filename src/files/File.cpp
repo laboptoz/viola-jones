@@ -64,7 +64,7 @@ int File::cpy_into_this_file(File origin)
     register char car;
     do
     {
-        car = fgetc(origin.get_id());
+        car = fgetc(origin.get_file_id());
         if(car != EOF)
             fputc(car, m_file_id);
     }
@@ -85,7 +85,7 @@ int File::cpy_from_this_file(File destination)
     {
         car = fgetc(m_file_id);
         if(car != EOF)
-            fputc(car, destination.get_id());
+            fputc(car, destination.get_file_id());
     }
     while (car != EOF);
     return 0;

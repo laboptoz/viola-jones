@@ -15,7 +15,7 @@ public:
 
     void set_name(char* name);
     void get_name(char* name);
-    FILE* get_id() {return m_file_id;};
+    inline FILE* get_file_id() {return m_file_id;};
     char* get_mode() {return m_mode;};
 
     void go_to_origin();
@@ -29,7 +29,7 @@ public:
 
     int clean_file();
 
-private:
+protected:
     char m_file_name[100];
     char m_mode[5];
     FILE* m_file_id;

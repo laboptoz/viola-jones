@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include "../config.h"
 #include "caract.h"
+#include "../files/File_caract.h"
 
 enum last_file_used_t
 {
@@ -36,12 +37,11 @@ private :
     std::vector< std::vector<unsigned long int> > integral_image_45d;
     std::vector<define_caract_t> all_caract_type;
 
-    char m_true_file[100];
-    char m_false_file[100];
+    File_caract m_true_file;
+    File_caract m_false_file;
     char m_weak_file[100];
     char m_threshold_file[100];
 
-    void compute_variances(char* file_name);
     void set_image_caract(char* file_name, caracteristic_type_t caracteristic_type);
     void clean_file(char* file_name);
     void generate_caracteristics(char* file_name);
@@ -50,8 +50,6 @@ private :
     void generate_caracteristics_from_file(char* file_name_new, char* file_name_base);
     void generate_thresholds();
     void compute_errors();
-    void simplify_true_caract();
-    void cpy_file(char* input, char* output);
 
     void define_all_caract_type();
 };
