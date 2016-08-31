@@ -69,18 +69,4 @@ inline int go_to_parity(FILE* file)
     }
 }
 
-inline int go_to_threshold(FILE* file)
-{
-    char tag_data[] = "<T>";
-    char temp[50];
-    int test;
-
-    do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_data)) && (test == 1));
-
-    if(test != 1)
-        return ERROR;
-    else
-        return 0;
-}
-
 #endif // CARACT_H_INCLUDED

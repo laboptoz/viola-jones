@@ -29,17 +29,17 @@ public:
 
     int clean_file();
 
-protected:
-    char m_file_name[100];
-    char m_mode[5];
-    FILE* m_file_id;
-
     char write_mode[5];
     char read_mode[5];
     char append_mode[5];
     char write_update_mode[5];
     char read_update_mode[5];
     char append_update_mode[5];
+
+protected:
+    char m_file_name[100];
+    char m_mode[5];
+    FILE* m_file_id;
 };
 
 #endif // FILE_H_INCLUDED

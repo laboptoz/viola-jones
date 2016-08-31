@@ -7,6 +7,7 @@
 #include "../config.h"
 #include "caract.h"
 #include "../files/File_caract.h"
+#include "../files/File_threshold.h"
 
 enum last_file_used_t
 {
@@ -39,7 +40,7 @@ private :
     File_caract m_true_file;
     File_caract m_false_file;
     char m_weak_file[100];
-    char m_threshold_file[100];
+    File_threshold m_threshold_file;
 
     void set_image_caract(char* file_name, caracteristic_type_t caracteristic_type);
     void clean_file(char* file_name);
