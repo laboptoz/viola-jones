@@ -88,6 +88,131 @@ void File_caract::generate_caracteristics_from_file(File_caract base_file)
     }
 }
 
+void File_caract::generate_caracteristics()
+{
+    unsigned int nb_caracts = 0;
+    define_all_caract_type();
+    if(file_open(write_mode) != ERROR)
+    {
+        int x, y, length, height;
+
+        go_to_origin();
+        for(x = 0; x < INIT_SIZE - 1; x++)
+        {
+            for(y = 0; y < INIT_SIZE - 1; y ++)
+            {
+                for(length = 2; length <= INIT_SIZE - x; length++)
+                {
+                    for(height = 2; height <= INIT_SIZE - y; height++)
+                    {
+                       generate_caracteristics_0d(x, y, length, height, nb_caracts);
+                       generate_caracteristics_45d(x, y, length, height, nb_caracts);
+                    }
+                }
+            }
+        }
+        printf("%d characteristics generated\n", nb_caracts);
+        file_close();
+    }
+}
+
+void File_caract::generate_caracteristics_0d(int x, int y, int length, int height, unsigned int &nb_caracts)
+{
+    unsigned int nb_caract, nb_rectangle;
+
+     for(nb_caract = 0; nb_caract < all_caract_type.size(); nb_caract++)
+    {
+        fprintf(get_file_id(), "<ID> %u <\\ID> ", nb_caract);
+        for(nb_rectangle = 0; nb_rectangle < all_caract_type[nb_caract].nb_rect; nb_rectangle++)
+        {
+            fprintf(get_file_id(), "<R> ");
+            if(nb_rectangle == 0)
+                fprintf(get_file_id(), "%d %d %d %d %d ", x, y, length, height, FIRST_RECT_WIEGHT);
+            else
+            {
+                define_caract_t define_caract = all_caract_type[nb_caract];
+                define_rect_caract_t rect_caract = define_caract.caract[nb_rectangle - 1];
+
+                int temp_length = length / rect_caract.length_factor;
+                int temp_hieght = height / rect_caract.height_factor;
+
+                int temp_x = x;
+                if(rect_caract.offset_x != SAME_POSITION)
+                    temp_x += length / rect_caract.offset_x;
+
+                int temp_y = y;
+                if(rect_caract.offset_y != SAME_POSITION)
+                    temp_y += height / rect_caract.offset_y;
+
+                fprintf(get_file_id(), "%d %d %d %d %d ", temp_x, temp_y, temp_length, temp_hieght, rect_caract.wieght);
+            }
+            fprintf(get_file_id(), "<\\R> ");
+        }
+        fprintf(get_file_id(), "<D> ");
+        fprintf(get_file_id(), "%03d %07.1f %07.1f %07.1f %07.1f %05.3f", 0, 0., 0., 0., 0., 0.);//count image, sum, scare_sum, variance
+        fprintf(get_file_id(), " <\\D> \n");
+
+        nb_caracts++;
+    }
+}
+
+void File_caract::generate_caracteristics_45d(int x, int y, int length, int height, unsigned int &nb_caracts)
+{
+    /*
+        L
+          --
+       -- -- -- H
+    xy -- --
+       --
+    */
+    if((x + length + height - 2 <= INIT_SIZE) && (y - length + 1 >= 0) && (y + height - 1 <= INIT_SIZE))
+    {
+        unsigned int nb_caract, nb_rectangle;
+
+         for(nb_caract = 0; nb_caract < all_caract_type.size(); nb_caract++)
+        {
+            fprintf(get_file_id(), "<ID> %u <\\ID> ", nb_caract+10);
+            for(nb_rectangle = 0; nb_rectangle < all_caract_type[nb_caract].nb_rect; nb_rectangle++)
+            {
+                fprintf(get_file_id(), "<R> ");
+                if(nb_rectangle == 0)
+                    fprintf(get_file_id(), "%d %d %d %d %d ", x, y, length, height, FIRST_RECT_WIEGHT);
+                else
+                {
+                    define_caract_t define_caract = all_caract_type[nb_caract];
+                    define_rect_caract_t rect_caract = define_caract.caract[nb_rectangle - 1];
+
+                    int temp_length = length / rect_caract.length_factor;
+                    int temp_hieght = height / rect_caract.height_factor;
+                    int temp_x = x;
+                    int temp_y = y;
+
+                    if(rect_caract.offset_x != SAME_POSITION)
+                    {
+                        temp_x += length / rect_caract.offset_x;
+                        temp_y -= length / rect_caract.offset_x;
+                    }
+
+                    if(rect_caract.offset_y != SAME_POSITION)
+                    {
+                        temp_y += height / rect_caract.offset_y;
+                        temp_x += height / rect_caract.offset_y;
+                    }
+
+                    fprintf(get_file_id(), "%d %d %d %d %d ", temp_x, temp_y, temp_length, temp_hieght, rect_caract.wieght);
+                }
+                fprintf(get_file_id(), "<\\R> ");
+            }
+            fprintf(get_file_id(), "<D> ");
+            fprintf(get_file_id(), "%03d %07.1f %07.1f %07.1f %07.1f %05.3f", 0, 0., 0., 0., 0., 0.);//count image, sum, scare_sum, variance
+            fprintf(get_file_id(), " <\\D> \n");
+
+            nb_caracts++;
+        }
+    }
+}
+
+
 int File_caract::go_to_data()
 {
     char temp[50];

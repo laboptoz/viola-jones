@@ -11,6 +11,7 @@ public:
 
     void compute_variances();
     void generate_caracteristics_from_file(File_caract base_file);
+    void generate_caracteristics();
 
     int go_to_data();
     int get_id();
@@ -29,7 +30,11 @@ private:
     char tag_data[5];
     char tag_id[5];
     char tag_car[5];
+    std::vector<define_caract_t> all_caract_type;
 
+    void generate_caracteristics_0d(int x, int y, int length, int height, unsigned int &nb_caracts);
+    void generate_caracteristics_45d(int x, int y, int length, int height, unsigned int &nb_caracts);
+    void define_all_caract_type();
 };
 
 #endif // FILE_CARACT_H_INCLUDED

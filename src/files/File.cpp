@@ -8,6 +8,9 @@ File::File()
     strcpy(write_update_mode, "w+");
     strcpy(read_update_mode, "r+");
     strcpy(append_update_mode, "a+");
+    strcpy(m_file_name,"");
+    strcpy(m_mode, "");
+    m_file_id = NULL;
 }
 
 File::~File()
