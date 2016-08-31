@@ -18,6 +18,12 @@
 
 #define FIRST_RECT_WIEGHT -1
 
+enum caracteristic_type_t
+{
+    true_caract,
+    false_caract
+};
+
 struct rect_t
 {
     int x;
@@ -47,26 +53,5 @@ struct define_caract_t
     unsigned int nb_rect;
     std::vector<define_rect_caract_t> caract;
 };
-
-inline int go_to_parity(FILE* file)
-{
-    char tag_data[] = "<P>";
-    char temp[50];
-    int test;
-
-    do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_data)) && (test == 1));
-
-    if(test != 1)
-        return ERROR;
-    else
-    {
-        int parity;
-        test = fscanf(file, "%d", &parity);
-        if(test != 1)
-            return ERROR;
-        else
-            return parity;
-    }
-}
 
 #endif // CARACT_H_INCLUDED

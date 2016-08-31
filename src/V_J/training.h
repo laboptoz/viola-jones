@@ -8,17 +8,12 @@
 #include "caract.h"
 #include "../files/File_caract.h"
 #include "../files/File_threshold.h"
+#include "../files/File_weak.h"
 
 enum last_file_used_t
 {
     caract,
     temp
-};
-
-enum caracteristic_type_t
-{
-    true_caract,
-    false_caract
 };
 
 class Training
@@ -39,11 +34,10 @@ private :
 
     File_caract m_true_file;
     File_caract m_false_file;
-    char m_weak_file[100];
+    File_weak m_weak_file;
     File_threshold m_threshold_file;
 
     void set_image_caract(char* file_name, caracteristic_type_t caracteristic_type);
-    void clean_file(char* file_name);
     void generate_thresholds();
     void compute_errors();
 };

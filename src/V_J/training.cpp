@@ -32,7 +32,7 @@ Training::Training(char* p_folder_file)
 
     while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
     strcpy(tmp, folder);
-    strcpy(m_weak_file, strcat(tmp,file));
+    m_weak_file.set_name(strcat(tmp,file));
 
     while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
     strcpy(tmp, folder);
@@ -50,7 +50,7 @@ void Training::generate_caracteristic_file()
 {
     char names[100];
 
-    clean_file(m_weak_file);
+    m_weak_file.clean_file();
 
     m_true_file.get_name(names);
     printf("generate %s\n", names);
@@ -184,8 +184,7 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
     char mode[] = "r+";
     if(file_caract.file_open(mode) != ERROR)
     {
-        FILE* weak = fopen(m_weak_file, "a");
-        if(weak != NULL)
+        if(m_weak_file.file_open(m_weak_file.append_mode) != ERROR)
         {
             /* internal variable */
             int count_image, ID, error;
@@ -197,10 +196,7 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
             rewind(file_caract.get_file_id());
             file_caract.go_to_origin();
 
-            if(caracteristic_type == true_caract)
-                fprintf(weak,"<P> %d ", TRUE);
-            else
-                fprintf(weak,"<P> %d ", FALSE);
+            m_weak_file.set_parity(caracteristic_type);
 
             do
             {
@@ -237,28 +233,17 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
                     fprintf(file_caract.get_file_id(), " %03d %07.1f %07.1f %07.1f %07.1f", count_image, mini, maxi, sum, scare_sum);
                     fsetpos (file_caract.get_file_id(), &position2);
 
-                    fprintf(weak,"%04d ",(int)result);
+                    m_weak_file.set_next_data(result);
                 }
             }
             while(error != ERROR);
-            fprintf(weak,"\n");
-            fclose(weak);
+            m_weak_file.set_next_image();
+            m_weak_file.file_close();
         }
-        else
-            printf("Error to open %s error code %d \n", m_weak_file, errno);
 
         file_caract.file_close();
     }
 }
-
-void Training::clean_file(char* file_name)
-{
-    errno = 0;
-    FILE* file = fopen(file_name, "w");
-    if(file == NULL)
-        printf("Error to open %s error code %d \n", file_name, errno);
-}
-
 
 void Training::generate_thresholds()
 {
@@ -311,19 +296,18 @@ void Training::compute_errors()
 
     m_threshold_file.get_datas();
 
-    FILE* weak_file = fopen(m_weak_file, "r");
-    if(weak_file != NULL)
+    if(m_weak_file.file_open(m_weak_file.read_mode) != ERROR)
     {
-        fseek(weak_file,0, SEEK_SET);
+        m_weak_file.go_to_origin();
         do
         {
-            parity = go_to_parity(weak_file);
+            parity = m_weak_file.go_to_parity();
             if(parity != ERROR)
             {
                 nb_caract = 0;
                 do
                 {
-                    test = fscanf(weak_file, "%d", &data);
+                    test = m_weak_file.get_next_data(data);
                     if(test == 1)
                     {
                         if(parity == TRUE)
@@ -348,10 +332,8 @@ void Training::compute_errors()
         }
         while(parity != ERROR);
         printf("get errors done\n");
-        fclose(weak_file);
+        m_weak_file.file_close();
 
         m_threshold_file.set_datas();
     }
-    else
-        printf("Error to open %s error code %d \n", m_weak_file, errno);
 }
