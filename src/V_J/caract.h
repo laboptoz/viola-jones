@@ -62,6 +62,41 @@ inline int go_to_data(FILE* file)
         return 0;
 }
 
+inline int go_to_parity(FILE* file)
+{
+    char tag_data[] = "<P>";
+    char temp[50];
+    int test;
+
+    do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_data)) && (test == 1));
+
+    if(test != 1)
+        return ERROR;
+    else
+    {
+        int parity;
+        test = fscanf(file, "%d", &parity);
+        if(test != 1)
+            return ERROR;
+        else
+            return parity;
+    }
+}
+
+inline int go_to_threshold(FILE* file)
+{
+    char tag_data[] = "<T>";
+    char temp[50];
+    int test;
+
+    do{test = fscanf(file,"%s",temp);}while((strcmp(temp,tag_data)) && (test == 1));
+
+    if(test != 1)
+        return ERROR;
+    else
+        return 0;
+}
+
 inline int get_id(FILE* file)
 {
     char tag_id[] = "<ID>";

@@ -68,6 +68,9 @@ void Training::generate_caracteristic_file()
 
     printf("\nGenerate thresholds\n");
     generate_thresholds();
+
+    printf("Compute errors\n");
+    compute_errors();
 }
 
 void Training::traine_true_image()
@@ -496,7 +499,7 @@ void Training::generate_thresholds()
                             max1 = max2;
 
                         threshold = min1 + (max1 - min1)/2.f;
-                        fprintf(threshold_file,"%06.1f %03d %03d %03d %03d\n",threshold,0,0,0,0);
+                        fprintf(threshold_file,"<T> %06.1f %03d %03d %03d %03d\n",threshold,0,0,0,0);
                     }
                 }
                 while((data_end_true != ERROR) || (data_end_false != ERROR));
@@ -512,6 +515,105 @@ void Training::generate_thresholds()
             printf("Error to open %s error code %d \n", m_true_file, errno);
 
         fclose(threshold_file);
+    }
+    else
+        printf("Error to open %s error code %d \n", m_threshold_file, errno);
+}
+
+void Training::compute_errors()
+{
+    errno = 0;
+    FILE* threshold_file = fopen(m_threshold_file, "r+");
+    if(threshold_file != NULL)
+    {
+        std::vector<int> T_pos, T_neg, F_pos, F_neg;
+        std::vector<float> threshold;
+        int data, test, parity;
+        unsigned int nb_caract;
+
+        float threshold_tmp;
+        int T_pos_tmp, T_neg_tmp, F_pos_tmp, F_neg_tmp;
+
+        rewind(threshold_file);
+        fseek(threshold_file, 0, SEEK_SET);
+        do
+        {
+            test = go_to_threshold(threshold_file);
+            if(test != ERROR)
+            {
+                fscanf(threshold_file, "%f %d %d %d %d\n", &threshold_tmp, &T_pos_tmp, &T_neg_tmp, &F_pos_tmp, &F_neg_tmp);
+                threshold.push_back(threshold_tmp);
+                T_pos.push_back(T_pos_tmp);
+                T_neg.push_back(T_neg_tmp);
+                F_pos.push_back(F_pos_tmp);
+                F_neg.push_back(F_neg_tmp);
+            }
+        }
+        while(test != ERROR);
+        printf("get data done\n");
+        fclose(threshold_file);
+
+        FILE* weak_file = fopen(m_weak_file, "r");
+        if(weak_file != NULL)
+        {
+            fseek(weak_file,0, SEEK_SET);
+            do
+            {
+                parity = go_to_parity(weak_file);
+                if(parity != ERROR)
+                {
+                    nb_caract = 0;
+                    do
+                    {
+                        test = fscanf(weak_file, "%d", &data);
+                        if(test == 1)
+                        {
+                            if(parity == TRUE)
+                            {
+                                if(data <= threshold[nb_caract])
+                                    T_neg[nb_caract]++;
+                                else
+                                    T_pos[nb_caract]++;
+                            }
+                            else
+                            {
+                                if(data <= threshold[nb_caract])
+                                    F_neg[nb_caract]++;
+                                else
+                                    F_pos[nb_caract]++;
+                            }
+                            nb_caract++;
+                        }
+                    }
+                    while(test == 1);
+                }
+            }
+            while(parity != ERROR);
+            printf("get errors done\n");
+            fclose(weak_file);
+
+            errno = 0;
+            threshold_file = fopen(m_threshold_file, "w");
+            if(threshold_file != NULL)
+            {
+                rewind(threshold_file);
+                fseek(threshold_file, 0, SEEK_SET);
+                fprintf(threshold_file,"b");
+                nb_caract = 0;
+
+                for(nb_caract = 0; nb_caract < threshold.size(); nb_caract++)
+                {
+                    data = fprintf(threshold_file, "<T> %06.1f %03d %03d %03d %03d\n", threshold[nb_caract], T_pos[nb_caract], T_neg[nb_caract], F_pos[nb_caract], F_neg[nb_caract]);
+                }
+
+                printf("set data done\n");
+                fclose(threshold_file);
+            }
+            else
+                printf("Error to open %s error code %d \n", m_threshold_file, errno);
+        }
+        else
+            printf("Error to open %s error code %d \n", m_weak_file, errno);
     }
     else
         printf("Error to open %s error code %d \n", m_threshold_file, errno);
