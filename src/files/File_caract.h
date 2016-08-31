@@ -24,6 +24,11 @@ public:
     bool compare_caracts(caract_t caract1, caract_t caract2, int ID_1, int ID_2);
 
 private:
+    char tag_rect[5];
+    char tag_rect_end[5];
+    char tag_data[5];
+    char tag_id[5];
+    char tag_car[5];
 
 };
 

@@ -2,7 +2,12 @@
 
 File::File()
 {
-
+    strcpy(write_mode, "w");
+    strcpy(read_mode, "r");
+    strcpy(append_mode, "a");
+    strcpy(write_update_mode, "w+");
+    strcpy(read_update_mode, "r+");
+    strcpy(append_update_mode, "a+");
 }
 
 File::~File()
@@ -55,7 +60,7 @@ void File::file_close()
 
 int File::cpy_into_this_file(File origin)
 {
-    if((strcmp(get_mode(),"w") != 0) && (strcmp(origin.get_mode(),"r") != 0))
+    if((strcmp(get_mode(),write_mode) != 0) && (strcmp(origin.get_mode(),read_mode) != 0))
     {
         return ERROR;
     }
@@ -74,7 +79,7 @@ int File::cpy_into_this_file(File origin)
 
 int File::cpy_from_this_file(File destination)
 {
-    if((strcmp(get_mode(),"r") != 0) && (strcmp(destination.get_mode(),"w") != 0))
+    if((strcmp(get_mode(),read_mode) != 0) && (strcmp(destination.get_mode(),write_mode) != 0))
     {
         return ERROR;
     }
@@ -94,7 +99,6 @@ int File::cpy_from_this_file(File destination)
 int File::clean_file()
 {
     int test1, test2;
-    char read_mode[] = "w";
     if(m_file_id == NULL)
     {
         test1 = file_open(read_mode);

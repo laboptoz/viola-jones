@@ -7,7 +7,11 @@
 
 File_caract::File_caract()
 {
-
+    strcpy(tag_rect, "<R>");
+    strcpy(tag_rect_end, "<\\R>");
+    strcpy(tag_data, "<D>");
+    strcpy(tag_id, "<ID>");
+    strcpy(tag_car, "<CAR>");
 }
 
 File_caract::~File_caract()
@@ -17,8 +21,7 @@ File_caract::~File_caract()
 
 void File_caract::compute_variances()
 {
-    char mode[] = "r+";
-    if(file_open(mode) != ERROR)
+    if(file_open(read_update_mode) != ERROR)
     {
         int eof, count_image;
         float sum, scare_sum, variance, mean, mini, maxi;
@@ -51,13 +54,10 @@ void File_caract::compute_variances()
 
 void File_caract::generate_caracteristics_from_file(File_caract base_file)
 {
-    char mode[] = "w";
-
-    if(file_open(mode) != ERROR)
+    if(file_open(write_mode) != ERROR)
     {
         go_to_origin();
-        strcpy(mode, "r");
-        if(base_file.file_open(mode) != NULL)
+        if(base_file.file_open(read_mode) != ERROR)
         {
             int ID, i =0;
             caract_t caracteristics;
@@ -90,7 +90,6 @@ void File_caract::generate_caracteristics_from_file(File_caract base_file)
 
 int File_caract::go_to_data()
 {
-    char tag_data[] = "<D>";
     char temp[50];
     int test;
 
@@ -104,7 +103,6 @@ int File_caract::go_to_data()
 
 int File_caract::get_id()
 {
-    char tag_id[] = "<ID>";
     char temp[50];
     int ID, test;
 
@@ -121,8 +119,6 @@ int File_caract::get_id()
 
 int File_caract::get_rects(caract_t &caract)
 {
-        char tag_rect[] = "<R>";
-        char tag_rect_end[] = "<\\R>";
         char temp[50];
         caract.nb_rect = 0;
         caract.caract.clear();
@@ -163,7 +159,6 @@ void File_caract::set_rects(caract_t &caract)
 
 void File_caract::set_nb_caract(unsigned int nb_caract)
 {
-    char tag_car[] = "<CAR>";
     char temp[50];
     int test;
 
@@ -174,11 +169,10 @@ void File_caract::set_nb_caract(unsigned int nb_caract)
 
 unsigned int File_caract::get_nb_caracteristics()
 {
-    char tag_nb_caract[] = "<CAR>";
     char temp[30];
     unsigned int test;
     go_to_origin();
-    do{test = fscanf(m_file_id,"%s",temp);}while((strcmp(temp,tag_nb_caract)) && (test == 1));
+    do{test = fscanf(m_file_id,"%s",temp);}while((strcmp(temp,tag_car)) && (test == 1));
     fscanf(m_file_id,"%u",&test);
 
     return test;
