@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include "../config.h"
 #include "caract.h"
+#include "../bitmap/bmp.h"
 #include "../files/File_caract.h"
 #include "../files/File_threshold.h"
 #include "../files/File_weak.h"
@@ -38,6 +39,9 @@ private :
     File_weak m_weak_file;
     File_threshold m_threshold_file;
 
+    void compute_image(bmp& BMP, char* image_name);
+    float get_sum(int ID, bmp& BMP, caract_t caracteristics);
+    void set_min_and_max(float data, float& mini, float& maxi, int count_image);
     void set_image_caract(char* file_name, caracteristic_type_t caracteristic_type);
     void generate_thresholds();
     void compute_errors();

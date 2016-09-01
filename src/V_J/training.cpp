@@ -1,5 +1,4 @@
 #include "training.h"
-#include "../bitmap/bmp.h"
 
 #include <cmath>
 #include <string.h>
@@ -8,13 +7,14 @@
 
 Training::Training(char* p_folder_file)
 {
+    char tmp[100];
+
     m_folder_file.set_name(p_folder_file);
     if(m_folder_file.file_open(m_folder_file.read_mode) == ERROR)
         exit(-1);
 
     m_folder_file.get_txt_folder();
 
-    char tmp[100];
     m_folder_file.get_next_txt(tmp);
     m_true_file.set_name(tmp);
 
@@ -72,7 +72,6 @@ void Training::traine_true_image()
     char folder[100];
     char file_image[100];
     char tmp[100];
-
     int test;
     int nb_of_trainning = 0;
 
@@ -104,7 +103,6 @@ void Training::traine_false_image()
     char file_image[100];
     char tmp[100];
     int test;
-
     int nb_of_trainning = 0;
 
     m_folder_file.go_to_origin();
@@ -127,10 +125,8 @@ void Training::traine_false_image()
     while(test != ERROR);
 }
 
-void Training::set_image_caract(char* image_name, caracteristic_type_t caracteristic_type)
+void Training::compute_image(bmp& BMP, char* image_name)
 {
-    /* compute image */
-    bmp BMP;
     bmp_t bmps = BMP.read_bmp(image_name);
     BMP.compute_integral_image_0d(bmps.image, integral_image_0d);
     BMP.compute_integral_image_45d(bmps.image, integral_image_45d);
@@ -138,16 +134,42 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
     #ifdef LOG
     printf("%5d/%5d pxl\n", (int)bmps.width, (int)bmps.height);
     #endif
+}
 
+float Training::get_sum(int ID, bmp& BMP, caract_t caracteristics)
+{
+    if(ID < 10)
+        return(BMP.get_sum_0d(integral_image_0d, caracteristics));
+    else
+        return(BMP.get_sum_45d(integral_image_45d, caracteristics));
+}
+
+void Training::set_min_and_max(float data, float& mini, float& maxi, int count_image)
+{
+    if(count_image == 1)
+        mini = maxi = data;
+    else
+    {
+        if(data < mini)
+            mini = data;
+        else if(data > maxi)
+            maxi = data;
+    }
+}
+
+void Training::set_image_caract(char* image_name, caracteristic_type_t caracteristic_type)
+{
+    bmp BMP;
     File_caract file_caract;
+
+    compute_image(BMP, image_name);
 
     if(caracteristic_type == true_caract)
         file_caract = m_true_file;
     else
         file_caract = m_false_file;
 
-    char mode[] = "r+";
-    if(file_caract.file_open(mode) != ERROR)
+    if(file_caract.file_open(file_caract.read_update_mode) != ERROR)
     {
         if(m_weak_file.file_open(m_weak_file.append_mode) != ERROR)
         {
@@ -175,24 +197,11 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
                     fgetpos (file_caract.get_file_id(), &position2);
                     count_image ++;
 
-                    if(ID < 10)
-                        result = BMP.get_sum_0d(integral_image_0d, caracteristics);
-                    else
-                        result = BMP.get_sum_45d(integral_image_45d, caracteristics);
-
-                    result = result*10000;
+                    result = get_sum(ID,BMP,caracteristics)*10000;
                     sum += result;
                     scare_sum = (scare_sum*(count_image - 1) + result*result)/count_image;
 
-                    if(count_image == 1)
-                        mini = maxi = result;
-                    else
-                    {
-                        if(result < mini)
-                            mini = result;
-                        else if(result > maxi)
-                            maxi = result;
-                    }
+                    set_min_and_max(result, mini, maxi, count_image);
 
                     fsetpos (file_caract.get_file_id(), &position1);
                     fprintf(file_caract.get_file_id(), " %03d %07.1f %07.1f %07.1f %07.1f", count_image, mini, maxi, sum, scare_sum);
@@ -205,7 +214,6 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
             m_weak_file.set_next_image();
             m_weak_file.file_close();
         }
-
         file_caract.file_close();
     }
 }
@@ -221,9 +229,8 @@ void Training::generate_thresholds()
                 m_true_file.go_to_origin();
                 m_false_file.go_to_origin();
 
-                char data_end_true, data_end_false;
+                int data_end_true, data_end_false, tmp;
                 float min1, min2, max1, max2;
-                int tmp;
 
                 do
                 {

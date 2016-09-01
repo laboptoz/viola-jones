@@ -104,13 +104,13 @@ int File::clean_file()
     int test1, test2;
     if(m_file_id == NULL)
     {
-        test1 = file_open(read_mode);
+        test1 = file_open(write_mode);
         file_close();
     }
     else
     {
        file_close();
-       test1 = file_open(read_mode);
+       test1 = file_open(write_mode);
        file_close();
        test2 = file_open(m_mode);
     }

@@ -2,7 +2,7 @@
 
 File_weak::File_weak()
 {
-    strcpy(tag_parity, "<p>");
+    strcpy(tag_parity, "<P>");
 }
 
 File_weak::~File_weak()
