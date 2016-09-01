@@ -9,6 +9,7 @@
 #include "../files/File_caract.h"
 #include "../files/File_threshold.h"
 #include "../files/File_weak.h"
+#include "../files/File_folder.h"
 
 enum last_file_used_t
 {
@@ -27,11 +28,11 @@ public :
     void traine_false_image();
 
 private :
-    FILE* m_folder_file;
 
     std::vector< std::vector<unsigned long int> > integral_image_0d;
     std::vector< std::vector<unsigned long int> > integral_image_45d;
 
+    File_folder m_folder_file;
     File_caract m_true_file;
     File_caract m_false_file;
     File_weak m_weak_file;

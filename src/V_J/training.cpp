@@ -8,40 +8,29 @@
 
 Training::Training(char* p_folder_file)
 {
-    m_folder_file = fopen(p_folder_file, "r");
-    if(m_folder_file == NULL)
-    {
-        printf("can't open folder file : %s\n",p_folder_file);
+    m_folder_file.set_name(p_folder_file);
+    if(m_folder_file.file_open(m_folder_file.read_mode) == ERROR)
         exit(-1);
-    }
-    char folder[100];
+
+    m_folder_file.get_txt_folder();
+
     char tmp[100];
-    char file[100];
-    char tag[] = "<CARACT>";
-    fseek(m_folder_file, 0, 0);
-    do{fscanf(m_folder_file,"%s",folder);}while(strcmp(folder,tag));
-    while(fscanf(m_folder_file,"\t<FOLDER> %s <\\FOLDER>",folder) == 0);
+    m_folder_file.get_next_txt(tmp);
+    m_true_file.set_name(tmp);
 
-    while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
-    strcpy(tmp, folder);
-    m_true_file.set_name(strcat(tmp,file));
+    m_folder_file.get_next_txt(tmp);
+    m_false_file.set_name(tmp);
 
-    while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
-    strcpy(tmp, folder);
-    m_false_file.set_name(strcat(tmp,file));
+    m_folder_file.get_next_txt(tmp);
+    m_weak_file.set_name(tmp);
 
-    while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
-    strcpy(tmp, folder);
-    m_weak_file.set_name(strcat(tmp,file));
-
-    while(fscanf(m_folder_file,"\t\t<FILE> %s <\\FILE>",file) == 0);
-    strcpy(tmp, folder);
-    m_threshold_file.set_name(strcat(tmp,file));
+    m_folder_file.get_next_txt(tmp);
+    m_threshold_file.set_name(tmp);
 }
 
 Training::~Training()
 {
-    fclose(m_folder_file);
+    m_folder_file.file_close();
 }
 
 using std::string;
@@ -84,31 +73,19 @@ void Training::traine_true_image()
     char file_image[100];
     char tmp[100];
 
-    /* tags */
-    char tag1[] = "<IMG>";
-    char tag2[] = "<TRUE>";
-    char img_tag[] = "<FILE>";
-    char end_of_true_tag[] = "<\\TRUE>";
-
+    int test;
     int nb_of_trainning = 0;
 
-    fseek(m_folder_file, 0, 0);
-    do{fscanf(m_folder_file,"%s",folder);}while(strcmp(folder,tag1));
-    do{fscanf(m_folder_file,"%s",folder);}while(strcmp(folder,tag2));
-    while(fscanf(m_folder_file,"\t\t<FOLDER> %s <\\FOLDER>",folder) == 0);
+    m_folder_file.go_to_origin();
+    m_folder_file.get_images_folder(TRUE, folder);
 
     printf("\ttrue image processing in %s folder\n", folder);
 
     do
     {
-        fseek(m_folder_file, 0, 0);
-        do{fscanf(m_folder_file,"%s",file_image);}while(strcmp(file_image,tag2));
-        for(int i =0; i < nb_of_trainning + 1; i++)
-            do{fscanf(m_folder_file,"%s",file_image);}while(strcmp(file_image,img_tag) && strcmp(file_image,end_of_true_tag));
-
-        if(strcmp(file_image,end_of_true_tag))
+        test = m_folder_file.get_img(nb_of_trainning, file_image, TRUE);
+        if(test != ERROR)
         {
-            fscanf(m_folder_file,"%s",file_image);
             #ifdef LOG
             printf("\t%s : ",file_image);
             #endif
@@ -117,7 +94,7 @@ void Training::traine_true_image()
         }
         nb_of_trainning++;
     }
-    while(strcmp(file_image,end_of_true_tag));
+    while(test != ERROR);
 }
 
 void Training::traine_false_image()
@@ -126,31 +103,19 @@ void Training::traine_false_image()
     char folder[100];
     char file_image[100];
     char tmp[100];
-
-    /* tags */
-    char tag1[] = "<IMG>";
-    char tag2[] = "<FALSE>";
-    char img_tag[] = "<FILE>";
-    char end_of_false_tag[] = "<\\FALSE>";
+    int test;
 
     int nb_of_trainning = 0;
 
-    fseek(m_folder_file, 0, 0);
-    do{fscanf(m_folder_file,"%s",folder);}while(strcmp(folder,tag1));
-    do{fscanf(m_folder_file,"%s",folder);}while(strcmp(folder,tag2));
-    while(fscanf(m_folder_file,"\t\t<FOLDER> %s <\\FOLDER>",folder) == 0);
+    m_folder_file.go_to_origin();
+    m_folder_file.get_images_folder(FALSE, folder);
 
     printf("\tfalse image processing in %s folder\n", folder);
     do
     {
-        fseek(m_folder_file, 0, 0);
-        do{fscanf(m_folder_file,"%s",file_image);}while(strcmp(file_image,tag2));
-        for(int i =0; i < nb_of_trainning + 1; i++)
-            do{fscanf(m_folder_file,"%s",file_image);}while(strcmp(file_image,img_tag) && strcmp(file_image,end_of_false_tag));
-
-        if(strcmp(file_image,end_of_false_tag))
+        test = m_folder_file.get_img(nb_of_trainning, file_image, FALSE);
+        if(test != ERROR)
         {
-            fscanf(m_folder_file,"%s",file_image);
             #ifdef LOG
             printf("\t%s : ",file_image);
             #endif
@@ -159,7 +124,7 @@ void Training::traine_false_image()
         }
         nb_of_trainning++;
     }
-    while(strcmp(file_image,end_of_false_tag));
+    while(test != ERROR);
 }
 
 void Training::set_image_caract(char* image_name, caracteristic_type_t caracteristic_type)
