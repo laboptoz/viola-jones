@@ -75,21 +75,22 @@ void find_best()
     int count_image, nb_charact = 0;
     float sum, scare_sum, variance;
 
-    errno = 0;
-    FILE * file_input = fopen(file_cara, "r");
-    if(file_input != NULL)
+    File_caract file_input;
+    file_input.set_name(file_cara);
+    char mode[] = "r";
+    if(file_input.file_open(mode) != ERROR)
     {
-            unsigned int test = get_nb_caracteristics(file_input);
+            unsigned int test = file_input.get_nb_caracteristics();
 
             if(test != 0)
             {
-                fseek(file_input, 0, 0);
+                file_input.go_to_origin();
 
                 do
                 {
-                    ID = get_id(file_input);
-                    i = get_rects(file_input, caracteristics);
-                    fscanf(file_input, "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance);
+                    ID = file_input.get_id();
+                    i = file_input.get_rects(caracteristics);
+                    fscanf(file_input.get_file_id(), "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance);
                     if(((ID == 5) || (ID == 5))&& (variance <= 17.5))
                     {
                         if(ID<10)
@@ -106,10 +107,8 @@ void find_best()
                 printf("\nNo caracteristic found to generate output\n");
 
         BMP.write_bmp(file_out);
-        fclose(file_input);
+        file_input.file_close();
     }
-    else
-        printf("Error to open %s error code %d \n", file_cara, errno);
 
 }
 
@@ -122,6 +121,8 @@ int main ()
   training.generate_caracteristic_file();
 
   //find_best();
+
+
 
   return 0;
 }
