@@ -39,7 +39,7 @@ void Training::generate_caracteristic_file()
 {
     char names[100];
 
-    m_weak_file.clean_file();
+    /*m_weak_file.clean_file();
 
     m_true_file.get_name(names);
     printf("generate %s\n", names);
@@ -57,7 +57,7 @@ void Training::generate_caracteristic_file()
     printf("\t%s done\n", names);
     m_false_file.compute_variances();
     m_false_file.get_name(names);
-    printf("\t%s done\n", names);
+    printf("\t%s done\n", names);*/
 
     printf("\nGenerate thresholds\n");
     generate_thresholds();
@@ -231,6 +231,8 @@ void Training::generate_thresholds()
 
                 int data_end_true, data_end_false, tmp;
                 float min1, min2, max1, max2;
+                int nb_img1, nb_img2;
+                float sum1, sum2;
 
                 do
                 {
@@ -239,15 +241,15 @@ void Training::generate_thresholds()
 
                     if((data_end_true != ERROR) || (data_end_false != ERROR))
                     {
-                        fscanf(m_true_file.get_file_id(), "%d %f %f", &tmp, &min1, &max1);
-                        fscanf(m_false_file.get_file_id(), "%d %f %f", &tmp, &min2, &max2);
+                        fscanf(m_true_file.get_file_id(), "%d %f %f %f", &nb_img1, &min1, &max1, &sum1);
+                        fscanf(m_false_file.get_file_id(), "%d %f %f %f", &nb_img2, &min2, &max2, &sum2);
 
                         if(min2 < min1)
                             min1 = min2;
                         if(max2 > max1)
                             max1 = max2;
 
-                        m_threshold_file.compute_treshold(min1,max1);
+                        m_threshold_file.compute_treshold(nb_img1,nb_img2,sum1,sum2);
                         m_threshold_file.write_datas();
                     }
                 }
