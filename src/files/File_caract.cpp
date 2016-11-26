@@ -226,6 +226,19 @@ int File_caract::go_to_data()
         return 0;
 }
 
+int File_caract::go_to_id()
+{
+    char temp[50];
+    int test;
+
+    do{test = fscanf(m_file_id,"%s",temp);}while((strcmp(temp,tag_id)) && (test == 1));
+
+    if(test != 1)
+        return ERROR;
+    else
+        return 0;
+}
+
 int File_caract::get_id()
 {
     char temp[50];
@@ -301,6 +314,23 @@ unsigned int File_caract::get_nb_caracteristics()
     fscanf(m_file_id,"%u",&test);
 
     return test;
+}
+
+int File_caract::get_caract_index(int index, caract_t &caract)
+{
+    int ID;
+    for(int i=0; i < index; i++)
+    {
+        ID = get_id();
+        if(ID == ERROR)
+            break;
+    }
+    if(ID != ERROR)
+    {
+        get_rects(caract);
+    }
+
+    return ID;
 }
 
 bool File_caract::compare_caracts(caract_t caract1, caract_t caract2, int ID_1, int ID_2)

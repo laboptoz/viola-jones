@@ -39,16 +39,16 @@ void Training::generate_caracteristic_file()
 {
     char names[100];
 
-    /*m_weak_file.clean_file();
+    //m_weak_file.clean_file();
 
     m_true_file.get_name(names);
     printf("generate %s\n", names);
-    m_true_file.generate_caracteristics();
+    //m_true_file.generate_caracteristics();
     traine_true_image();
 
     m_false_file.get_name(names);
     printf("\ngenerate %s \n", names);
-    m_false_file.generate_caracteristics();
+    //m_false_file.generate_caracteristics();
     traine_false_image();
 
     printf("\ncompute variances : \n");
@@ -57,7 +57,7 @@ void Training::generate_caracteristic_file()
     printf("\t%s done\n", names);
     m_false_file.compute_variances();
     m_false_file.get_name(names);
-    printf("\t%s done\n", names);*/
+    printf("\t%s done\n", names);
 
     printf("\nGenerate thresholds\n");
     generate_thresholds();
@@ -89,9 +89,9 @@ void Training::traine_true_image()
             printf("\t%s : ",file_image);
             #endif
             strcpy(tmp,folder);
-            set_image_caract(strcat(tmp,file_image), true_caract);
+            if(set_image_caract(strcat(tmp,file_image), true_caract))
+                nb_of_trainning++;
         }
-        nb_of_trainning++;
     }
     while(test != ERROR);
 }
@@ -119,8 +119,8 @@ void Training::traine_false_image()
             #endif
             strcpy(tmp,folder);
             set_image_caract(strcat(tmp,file_image), false_caract);
+            nb_of_trainning++;
         }
-        nb_of_trainning++;
     }
     while(test != ERROR);
 }
@@ -157,12 +157,14 @@ void Training::set_min_and_max(float data, float& mini, float& maxi, int count_i
     }
 }
 
-void Training::set_image_caract(char* image_name, caracteristic_type_t caracteristic_type)
+bool Training::set_image_caract(char* image_name, caracteristic_type_t caracteristic_type)
 {
     bmp BMP;
     File_caract file_caract;
 
     compute_image(BMP, image_name);
+    if((BMP.input_bmp.width < 24) || (BMP.input_bmp.height < 24))
+        return false;
 
     if(caracteristic_type == true_caract)
         file_caract = m_true_file;
@@ -214,8 +216,14 @@ void Training::set_image_caract(char* image_name, caracteristic_type_t caracteri
             m_weak_file.set_next_image();
             m_weak_file.file_close();
         }
+        else
+            return false;
         file_caract.file_close();
     }
+    else
+        return false;
+
+    return true;
 }
 
 void Training::generate_thresholds()
@@ -233,6 +241,7 @@ void Training::generate_thresholds()
                 float min1, min2, max1, max2;
                 int nb_img1, nb_img2;
                 float sum1, sum2;
+                float scare_sum1, scare_sum2;
 
                 do
                 {
@@ -241,15 +250,15 @@ void Training::generate_thresholds()
 
                     if((data_end_true != ERROR) || (data_end_false != ERROR))
                     {
-                        fscanf(m_true_file.get_file_id(), "%d %f %f %f", &nb_img1, &min1, &max1, &sum1);
-                        fscanf(m_false_file.get_file_id(), "%d %f %f %f", &nb_img2, &min2, &max2, &sum2);
+                        fscanf(m_true_file.get_file_id(), "%d %f %f %f %f", &nb_img1, &min1, &max1, &sum1, &scare_sum1);
+                        fscanf(m_false_file.get_file_id(), "%d %f %f %f %f", &nb_img2, &min2, &max2, &sum2, &scare_sum2);
 
                         if(min2 < min1)
                             min1 = min2;
                         if(max2 > max1)
                             max1 = max2;
 
-                        m_threshold_file.compute_treshold(nb_img1,nb_img2,sum1,sum2);
+                        m_threshold_file.compute_treshold(nb_img1,nb_img2,sum1,sum2,scare_sum1, scare_sum2);
                         m_threshold_file.write_datas();
                     }
                 }

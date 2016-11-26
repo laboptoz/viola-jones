@@ -42,7 +42,7 @@ private :
     void compute_image(bmp& BMP, char* image_name);
     float get_sum(int ID, bmp& BMP, caract_t caracteristics);
     void set_min_and_max(float data, float& mini, float& maxi, int count_image);
-    void set_image_caract(char* file_name, caracteristic_type_t caracteristic_type);
+    bool set_image_caract(char* file_name, caracteristic_type_t caracteristic_type);
     void generate_thresholds();
     void compute_errors();
 };

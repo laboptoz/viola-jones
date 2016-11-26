@@ -63,64 +63,48 @@ void draw_45d(std::vector<std::vector<unsigned long int> > &image, int x, int y,
 void find_best()
 {
     char file_cara[] = "D:/projet/AI/viola&jones/file/caract_true.txt";
-    unsigned long int i;
-    int ID;
 
-    char file_in[] = "D:/projet/AI/viola&jones/file/true/094.bmp"; //chemin à changer
+    char file_in[] = "D:/projet/AI/viola&jones/file/true/000.bmp"; //chemin à changer
     char file_out[] = "D:/projet/AI/viola&jones/file/true/out.bmp"; //chemin à changer
     caract_t caracteristics;
     bmp BMP;
     bmp_t bmps = BMP.read_bmp(file_in);
 
-    int count_image, nb_charact = 0;
-    float sum, scare_sum, variance;
+    File_threshold threshold_file;
+    threshold_file.set_name("D:/projet/AI/viola&jones/file/threshold.txt");
+    std::vector<int> index = threshold_file.get_index_sup(70.);
+    std::cout << index.size() << std::endl;
 
-    File_caract file_input;
-    file_input.set_name(file_cara);
-    char mode[] = "r";
-    if(file_input.file_open(mode) != ERROR)
+    File_caract caracts;
+    caracts.set_name(file_cara);
+    caracts.file_open("r");
+
+    for(std::vector<int>::iterator it = index.begin(); it != index.end(); ++it)
     {
-            unsigned int test = file_input.get_nb_caracteristics();
-
-            if(test != 0)
-            {
-                file_input.go_to_origin();
-
-                do
-                {
-                    ID = file_input.get_id();
-                    i = file_input.get_rects(caracteristics);
-                    fscanf(file_input.get_file_id(), "%d %f %f %f <\\D> ", &count_image, &sum, &scare_sum, &variance);
-                    if(((ID == 5) || (ID == 5))&& (variance <= 17.5))
-                    {
-                        if(ID<10)
-                            draw_0d(BMP.input_bmp.image,caracteristics.caract[0].x,caracteristics.caract[0].y,caracteristics.caract[0].length,caracteristics.caract[0].height);
-                        else
-                            draw_45d(BMP.input_bmp.image,caracteristics.caract[0].x,caracteristics.caract[0].y,caracteristics.caract[0].length,caracteristics.caract[0].height);
-                        nb_charact ++;
-                    }
-                }
-                while(i == 0);
-                printf("\n%d characteristics draws\n\n", nb_charact);
-            }
+        int id = caracts.get_caract_index((*it), caracteristics);
+        if(id != ERROR)
+        {
+            std::cout << id << std::endl;
+            if(id<10)
+                draw_0d(BMP.input_bmp.image,caracteristics.caract[0].x,caracteristics.caract[0].y,caracteristics.caract[0].length,caracteristics.caract[0].height);
             else
-                printf("\nNo caracteristic found to generate output\n");
-
-        BMP.write_bmp(file_out);
-        file_input.file_close();
+                draw_45d(BMP.input_bmp.image,caracteristics.caract[0].x,caracteristics.caract[0].y,caracteristics.caract[0].length,caracteristics.caract[0].height);
+        }
     }
 
+    caracts.file_close();
+    BMP.write_bmp(file_out);
 }
 
 int main ()
 {
   char file_folder[] = "D:/projet/AI/viola&jones/file_folder.txt"; //chemin à changer
 
-  Training training(file_folder);
+  //Training training(file_folder);
 
-  training.generate_caracteristic_file();
+  //training.generate_caracteristic_file();
 
-  //find_best();
+  find_best();
 
 
 

@@ -14,6 +14,7 @@ public:
     void generate_caracteristics();
 
     int go_to_data();
+    int go_to_id();
     int get_id();
 
     int get_rects(caract_t &caract);
@@ -21,6 +22,8 @@ public:
 
     void set_nb_caract(unsigned int nb_caract);
     unsigned int get_nb_caracteristics();
+
+    int get_caract_index(int index, caract_t &caract);
 
     bool compare_caracts(caract_t caract1, caract_t caract2, int ID_1, int ID_2);
 
